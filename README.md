@@ -65,3 +65,6 @@ print(phonemes) # nˈW Wɾɑfdˈɪkʃənˌɛɹi wˈɜɹdz ɑɹ hˈændəld bI ˈ
 - https://github.com/fxsjy/jieba
 - https://github.com/mozillazg/python-pinyin
 - https://github.com/stefantaubert/pinyin-to-ipa
+
+### Vietnamese
+- https://github.com/v-nhandt21/Viphoneme
