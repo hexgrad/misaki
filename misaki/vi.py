@@ -414,7 +414,7 @@ class VIG2P:
             self.pham = 1
         else:
             self.cao = 1
-        self.en_g2p = G2P(**en_g2p_kwargs) if enable_en_g2p else lambda _: '❓', []
+        self.en_g2p = G2P(**en_g2p_kwargs) if enable_en_g2p else lambda _: ('❓', [])
     
     def substr2ipa(self, tk, ipa):
         """
