@@ -395,7 +395,9 @@ class ViToken:
     phonemes: str = None
 
 class VIG2P:
-    def __init__(self, glottal = 0, pham = 0, cao = 0, palatals = 0, substr_tokenize = True, dialect = "north", tone_type = 0, num2words_use_linking_words = True, **en_g2p_kwargs):
+    def __init__(self, 
+                 glottal = 0, pham = 0, cao = 0, palatals = 0, substr_tokenize = True, dialect = "north",
+                 tone_type = 0, num2words_use_linking_words = True, enable_en_g2p = True, en_g2p_kwargs = {}):
         self.glottal = glottal
         self.pham = pham
         self.cao = cao
@@ -412,7 +414,7 @@ class VIG2P:
             self.pham = 1
         else:
             self.cao = 1
-        self.en_g2p = G2P(**en_g2p_kwargs)
+        self.en_g2p = G2P(**en_g2p_kwargs) if enable_en_g2p else lambda _: '❓'
     
     def substr2ipa(self, tk, ipa):
         """
