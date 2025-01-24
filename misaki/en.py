@@ -124,15 +124,29 @@ def apply_stress(ps, stress):
     return ps
 
 class Lexicon:
+    @classmethod
+    def grow_dictionary(cls, d):
+        # HACK: Inefficient but correct.
+        e = {}
+        for k, v in d.items():
+            if len(k) < 2:
+                continue
+            if k == k.lower():
+                if k != k.capitalize():
+                    e[k.capitalize()] = v
+            elif k == k.lower().capitalize():
+                e[k.lower()] = v
+        return {**e, **d}
+
     def __init__(self, british):
         self.british = british
         self.cap_stresses = (0.5, 2)
         self.golds = {}
         self.silvers = {}
         with importlib.resources.open_text(data, f"{'gb' if british else 'us'}_gold.json") as r:
-            self.golds = json.load(r)
+            self.golds = type(self).grow_dictionary(json.load(r))
         with importlib.resources.open_text(data, f"{'gb' if british else 'us'}_silver.json") as r:
-            self.silvers = json.load(r)
+            self.silvers = type(self).grow_dictionary(json.load(r))
         assert all(isinstance(v, str) or isinstance(v, dict) for v in self.golds.values())
         vocab = GB_VOCAB if british else US_VOCAB
         for vs in self.golds.values():
@@ -172,6 +186,8 @@ class Lexicon:
             return 'ɐn', 4
         elif word == 'I' and tag == 'PRP':
             return f'{SECONDARY_STRESS}I', 4
+        elif word in ('by', 'By', 'BY') and type(self).get_parent_tag(tag) == 'ADV':
+            return 'bˈI', 4
         elif word in ('to', 'To') or (word == 'TO' and tag == 'TO'):
             return {None: self.golds['to'], False: 'tə', True: 'tʊ'}[ctx.future_vowel], 4
         elif word in ('the', 'The') or (word == 'THE' and tag == 'DT'):
@@ -182,16 +198,17 @@ class Lexicon:
 
     @classmethod
     def get_parent_tag(cls, tag):
-        if tag.startswith('VB'):
+        if tag is None:
+            return tag
+        elif tag.startswith('VB'):
             return 'VERB'
         elif tag.startswith('NN'):
             return 'NOUN'
-        elif tag.startswith('ADV') or tag.startswith('RB'): # TODO: RP?
+        elif tag.startswith('ADV') or tag.startswith('RB'): #or tag == 'RP':
             return 'ADV'
         elif tag.startswith('ADJ') or tag.startswith('JJ'):
             return 'ADJ'
-        else:
-            return tag
+        return tag
 
     def is_known(self, word, tag):
         if word in self.golds or word in SYMBOLS or word in self.silvers:
@@ -235,7 +252,7 @@ class Lexicon:
         return stem + 'z'
 
     def stem_s(self, word, tag, stress, ctx):
-        if len(word) > 1 and word.endswith('s') and not word.endswith('ss') and self.is_known(word[:-1], tag):
+        if len(word) > 2 and word.endswith('s') and not word.endswith('ss') and self.is_known(word[:-1], tag):
             stem = word[:-1]
         elif (word.endswith("'s") or (len(word) > 4 and word.endswith('es'))) and self.is_known(word[:-2], tag):
             stem = word[:-2]
