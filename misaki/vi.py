@@ -505,14 +505,17 @@ class VIG2P:
         vitokens: list[ViToken] = []
         for tk in TK:
             if tk in ['.', ',', ';', ':', '!', '?', ')', '}', ']']:
+                if tk in [')', '}', ']']:
+                    tk = ')'
                 IPA = IPA.rstrip() + tk + ' '
                 vitokens.append(ViToken(tk))
                 continue
             if tk in ['(', '{', '[']:
+                tk = '('
                 IPA += tk
                 vitokens.append(ViToken(tk))
                 continue
-            if tk in ['"', "'"]:
+            if tk in ['"', "'", '–', '“', '”']:
                 IPA += tk + ' '
                 vitokens.append(ViToken(tk))
                 continue
