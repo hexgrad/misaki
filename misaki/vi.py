@@ -379,7 +379,9 @@ def Parsing(listParse, text, delimit):
 # Pseudo implementation of vinorm
 def TTSnorm(text, use_linking_words = True):
     def number_fn(match):
-        number: str = match.group("number")
+        number = ''.join([c for c in match.group('number') if c.isdigit()])
+        if len(number) == 0:
+            return ''
         if len(number) > 1:
             number = number.removeprefix('0')
         if use_linking_words:
@@ -498,7 +500,7 @@ class VIG2P:
             return compound
 
     def __call__(self, text):
-        TN = TTSnorm(text, self.num2words_use_linking_words)
+        TN = TTSnorm(text.replace('_', ' '), self.num2words_use_linking_words)
         # Words in Vietnamese only have one morphological form, regardless of the compound words
         # so word segmentation is unnecessary
         # E.g. "nhà" trong "nhà xe" and "nhà lầu" are the same /ɲa2/
