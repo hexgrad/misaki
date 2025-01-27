@@ -499,7 +499,7 @@ class VIG2P:
             return compound
 
     def __call__(self, text):
-        TN = TTSnorm(text, self.num2words_use_linking_words, self.skip_invalid_chars)
+        TN = TTSnorm(text, self.num2words_use_linking_words)
         # Words in Vietnamese only have one morphological form, regardless of the compound words
         # so word segmentation is unnecessary
         # E.g. "nhà" trong "nhà xe" and "nhà lầu" are the same /ɲa2/
