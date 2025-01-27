@@ -509,7 +509,7 @@ class VIG2P:
         vitokens: list[ViToken] = []
         for tk in TK:
             if EN_VI_REGEX.match(tk) is None:
-                IPA += tk + " "
+                IPA += '['+tk+']' + " "
                 vitokens.append(ViToken(tk, '['+tk+']'))
                 continue
             if tk in ['.', ',', ';', ':', '!', '?', ')', '}', ']']:
