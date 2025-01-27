@@ -155,7 +155,7 @@ with importlib.resources.open_text(data, 'vi_teencode.json', encoding = "utf-8")
     TEENCODE_MAPPING = json.load(r)
 NUMBER_REGEX = re.compile(regex_tokenize.number)
 SYMBOL_REGEX = re.compile('|'.join(re.escape(symbol) for symbol in SYMBOL_MAPPING.keys()))
-EN_VI_REGEX = re.compile("^[!-~“”–" + regex_tokenize.VIETNAMESE_VOWELS_LOWER + "]+$")
+EN_VI_REGEX = re.compile("^[!-~“”–" + regex_tokenize.VIETNAMESE_CHARACTERS_LOWER + "]+$", re.IGNORECASE)
 
 ################################################3
 
@@ -398,7 +398,7 @@ class ViToken:
 class VIG2P:
     def __init__(self, 
                  glottal = 0, pham = 0, cao = 0, palatals = 0, substr_tokenize = True, dialect = "north",
-                 tone_type = 0, num2words_use_linking_words = True, skip_invalid_chars = True,
+                 tone_type = 0, num2words_use_linking_words = True,
                  enable_en_g2p = True, en_g2p_kwargs = {}):
         self.glottal = glottal
         self.pham = pham
@@ -408,7 +408,6 @@ class VIG2P:
         self.delimit = ''
         self.tone_type = tone_type
         self.num2words_use_linking_words = num2words_use_linking_words
-        self.skip_invalid_chars = skip_invalid_chars
         if dialect in ["north", "central", "south"]:
             self.dialect = dialect[0]
         else:
@@ -507,7 +506,9 @@ class VIG2P:
         IPA = ""
         vitokens: list[ViToken] = []
         for tk in TK:
-            if self.skip_invalid_chars and not EN_VI_REGEX.match(tk):
+            if EN_VI_REGEX.match(tk) is None:
+                IPA += tk + " "
+                vitokens.append(ViToken(tk, '['+tk+']'))
                 continue
             if tk in ['.', ',', ';', ':', '!', '?', ')', '}', ']']:
                 if tk in [')', '}', ']']:
