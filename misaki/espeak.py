@@ -12,7 +12,7 @@ def set_espeak_library():
             Darwin='/opt/homebrew/Cellar/espeak-ng/1.52.0/lib/libespeak-ng.1.dylib',
             Windows='C:\Program Files\eSpeak NG\libespeak-ng.dll',
         ).get(platform.system())
-        if library is not None and os.path.exists(library):
+        if library and os.path.exists(library):
             EspeakWrapper.set_library(library)
     return EspeakWrapper._ESPEAK_LIBRARY
 
