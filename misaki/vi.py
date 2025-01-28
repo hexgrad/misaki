@@ -460,6 +460,7 @@ class VIG2P:
                 for char in tk.lower()
             ]
         
+        orig_tk = tk
         tk = tk.lower()
         if VI_ONLY.search(tk) is None:
             eng, _ = self.en_g2p(tk)
@@ -478,7 +479,7 @@ class VIG2P:
                 _ipa = convert(
                     VI.get(char, char), self.dialect, self.glottal, self.pham, self.cao, self.palatals, ''
                 )
-                parents.appendleft(tk)
+                parents.appendleft(orig_tk)
                 parts.appendleft(char)
                 sub_ipa.appendleft(_ipa)
                 break
@@ -495,7 +496,7 @@ class VIG2P:
                     converted_ipa = _ipa
 
             if start != -1:
-                parents.appendleft(tk)
+                parents.appendleft(orig_tk)
                 sub_ipa.appendleft(converted_ipa)
                 parts.appendleft(tk[start:])
                 tk = tk[:start]
