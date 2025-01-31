@@ -2,6 +2,7 @@ from pypinyin import lazy_pinyin, Style
 from .transcription import pinyin_to_ipa
 import jieba
 import re
+import cn2an
 
 class ZHG2P:
     @classmethod
@@ -28,7 +29,8 @@ class ZHG2P:
             return ''
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
-        for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
+        zhstr = cn2an.transform(text, "an2cn")
+        for segment in re.findall(f'[{zh}]+|[^{zh}]+', zhstr):
             # print(is_zh, segment)
             if is_zh:
                 words = jieba.lcut(segment, cut_all=False)
