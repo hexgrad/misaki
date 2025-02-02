@@ -1,10 +1,25 @@
+# -*- coding: utf-8 -*-
 from pypinyin import lazy_pinyin, Style
 from .transcription import pinyin_to_ipa
-import jieba
 import re
 import cn2an
 
 class ZHG2P:
+
+    punctuations = r'[，、：；。！？]'
+    punctuation_replacements = {
+            '，': ' | ',
+            '、': ' | ',
+            '：': ' | ',
+            '；': ' ‖ ‖ ',
+            '。': ' ‖ ‖ ‖ ',
+            '！': ' ‖ ‖ ‖ ', 
+            '？': ' ‖ ‖ ‖ ', 
+    }
+
+    def replace_punctuation(self, match):
+        return self.punctuation_replacements[match.group()]    
+
     @classmethod
     def retone(cls, p):
         p = p.replace('˧˩˧', '↓') # third tone
@@ -27,14 +42,18 @@ class ZHG2P:
     def __call__(self, text, zh='\u4E00-\u9FFF'):
         if not text:
             return ''
+        punctuation_pattern = re.compile(self.punctuations)
+        replace_punctuation = self.replace_punctuation        
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
         zhstr = cn2an.transform(text, "an2cn")
         for segment in re.findall(f'[{zh}]+|[^{zh}]+', zhstr):
             # print(is_zh, segment)
             if is_zh:
-                words = jieba.lcut(segment, cut_all=False)
+                words = [segment]
                 segment = ' '.join(type(self).word2ipa(w) for w in words)
+            else:
+                segment = re.sub(punctuation_pattern, replace_punctuation, segment)
             result += segment
             is_zh = not is_zh
         return result.replace(chr(815), '')
