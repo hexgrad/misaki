@@ -1,7 +1,6 @@
 from . import data
 from dataclasses import dataclass, replace
 from num2words import num2words
-from numbers import Number
 from typing import Optional, Union
 import importlib.resources
 import json
@@ -25,9 +24,9 @@ class MToken:
     num_flags: str = ''
     prespace: bool = False
     rating: Optional[int] = None
-    start_ts: Optional[Number] = None
-    end_ts: Optional[Number] = None
-    
+    start_ts: Optional[float] = None
+    end_ts: Optional[float] = None
+
     def stress_weight(self):
         return sum(2 if c in DIPHTHONGS else 1 for c in self.phonemes) if self.phonemes else 0
 
