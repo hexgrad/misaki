@@ -1,6 +1,6 @@
 # misaki/ko.py
 
-from g2pk import G2p as BaseG2p
+from g2pk2 import G2p as BaseG2p
 from .hangul.worker import convert
 from .ko_convert import convert2
 import re
