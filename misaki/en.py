@@ -1,13 +1,14 @@
+from . import data
 from dataclasses import dataclass, replace
 from num2words import num2words
-from typing import Optional, Union
+from numbers import Number
+from typing import List, Optional, Union
 import importlib.resources
 import json
 import numpy as np
 import re
 import spacy
 import unicodedata
-from . import data
 
 DIPHTHONGS = frozenset('AIOQWYʤʧ')
 
@@ -24,6 +25,7 @@ class MToken:
     num_flags: str = ''
     prespace: bool = False
     rating: Optional[int] = None
+    timestamps: List[Number] = []
     
     def stress_weight(self):
         return sum(2 if c in DIPHTHONGS else 1 for c in self.phonemes) if self.phonemes else 0
