@@ -12,7 +12,7 @@ from . import data
 DIPHTHONGS = frozenset('AIOQWYʤʧ')
 
 @dataclass
-class MutableToken:
+class MToken:
     text: str
     tag: str
     whitespace: str
@@ -506,7 +506,7 @@ class G2P:
     def tokenize(self, text, tokens, features):
         doc = self.nlp(text)
         # print(doc._.trf_data.all_outputs[0].data.shape, doc._.trf_data.all_outputs[0].lengths)
-        mutable_tokens = [MutableToken(text=t.text, tag=t.tag_, whitespace=t.whitespace_) for t in doc]
+        mutable_tokens = [MToken(text=t.text, tag=t.tag_, whitespace=t.whitespace_) for t in doc]
         if not features:
             return mutable_tokens
         align = spacy.training.Alignment.from_strings(tokens, [t.text for t in mutable_tokens])
@@ -586,7 +586,7 @@ class G2P:
         num_flags = ''.join(sorted({c for t in tokens for c in t.num_flags}))
         rating = {t.rating for t in tokens}
         rating = None if None in rating else min(rating)
-        return MutableToken(text=text, tag=tag, whitespace=whitespace, is_head=is_head, stress=stress, currency=currency, num_flags=num_flags, rating=rating)
+        return MToken(text=text, tag=tag, whitespace=whitespace, is_head=is_head, stress=stress, currency=currency, num_flags=num_flags, rating=rating)
 
     @classmethod
     def resolve_tokens(cls, tokens):
