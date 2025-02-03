@@ -2,7 +2,7 @@ from . import data
 from dataclasses import dataclass, replace
 from num2words import num2words
 from numbers import Number
-from typing import List, Optional, Union
+from typing import Optional, Union
 import importlib.resources
 import json
 import numpy as np
@@ -25,7 +25,8 @@ class MToken:
     num_flags: str = ''
     prespace: bool = False
     rating: Optional[int] = None
-    timestamps: List[Number] = []
+    start_ts: Optional[Number] = None
+    end_ts: Optional[Number] = None
     
     def stress_weight(self):
         return sum(2 if c in DIPHTHONGS else 1 for c in self.phonemes) if self.phonemes else 0
