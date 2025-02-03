@@ -1,5 +1,5 @@
 # misaki
-Misaki is a G2P engine designed for Kokoro models.
+Misaki is a G2P engine designed for [Kokoro](https://github.com/hexgrad/kokoro) models.
 
 Hosted demo: https://hf.co/spaces/hexgrad/Misaki-G2P
 
@@ -68,3 +68,11 @@ print(phonemes) # nˈW Wɾɑfdˈɪkʃənˌɛɹi wˈɜɹdz ɑɹ hˈændəld bI ˈ
 
 ### Vietnamese
 - https://github.com/v-nhandt21/Viphoneme
+
+### Acknowledgements
+- 🛠️ Misaki builds on top of many excellent G2P projects linked above.
+- 🌐 Thank you to all native speakers who advised and contributed G2P in many languages.
+- 👾 Kokoro Discord server: https://discord.gg/QuGxSWBfQy
+- 🌸 Misaki is a Japanese name and a [character in the Terminator franchise](https://terminator.fandom.com/wiki/Misaki) along with [Kokoro](https://github.com/hexgrad/kokoro?tab=readme-ov-file#acknowledgements).
+
+<img src="https://static.wikia.nocookie.net/terminator/images/2/2e/Character_Misaki.png/revision/latest?cb=20240914020038" width="400" alt="misaki" />

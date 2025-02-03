@@ -584,7 +584,9 @@ class G2P:
         currency = {t.currency for t in tokens if t.currency is not None}
         currency = max(currency) if currency else None
         num_flags = ''.join(sorted({c for t in tokens for c in t.num_flags}))
-        return MutableToken(text=text, tag=tag, whitespace=whitespace, is_head=is_head, stress=stress, currency=currency, num_flags=num_flags)
+        rating = {t.rating for t in tokens}
+        rating = None if None in rating else min(rating)
+        return MutableToken(text=text, tag=tag, whitespace=whitespace, is_head=is_head, stress=stress, currency=currency, num_flags=num_flags, rating=rating)
 
     @classmethod
     def resolve_tokens(cls, tokens):
@@ -663,9 +665,15 @@ class G2P:
             else:
                 type(self).resolve_tokens(w)
         result = ''
+        flat_tokens = []
         for w in tokens:
+            ps = ''
             for t in (w if isinstance(w, list) else [w]):
-                if t.prespace and result and not result[-1].isspace() and t.phonemes:
-                    result += ' '
-                result += (self.unk if t.phonemes is None else t.phonemes) + t.whitespace
-        return result, tokens
+                if t.prespace and (result + ps) and not (result + ps)[-1].isspace() and t.phonemes:
+                    ps += ' '
+                ps += (self.unk if t.phonemes is None else t.phonemes) #+ t.whitespace
+            result += ps + t.whitespace
+            token = type(self).merge_tokens(w, force=True) if isinstance(w, list) else w
+            token.phonemes = ps
+            flat_tokens.append(token)
+        return result, flat_tokens
