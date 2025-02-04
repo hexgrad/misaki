@@ -487,6 +487,7 @@ class G2P:
         tokens = []
         features = {}
         last_end = 0
+        text = text.lstrip()
         for m in LINK_REGEX.finditer(text):
             result += text[last_end:m.start()]
             tokens.extend(text[last_end:m.start()].split())
