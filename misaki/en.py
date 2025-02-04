@@ -57,6 +57,7 @@ class MToken:
 @dataclass
 class TokenContext:
     future_vowel: Optional[bool] = None
+    future_tag: Optional[str] = None
 
 # BEGIN HACK: Scope so we don't use regex elsewhere.
 def make_subtokenize_once():
@@ -197,6 +198,10 @@ class Lexicon:
             return 'ði' if ctx.future_vowel == True else 'ðə', 4
         elif tag == 'IN' and re.match(r'(?i)vs\.?$', word):
             return self.lookup('versus', None, None, ctx)
+        elif word in ('used', 'Used', 'USED'):
+            if tag == 'VBD' and ctx.future_tag == 'TO':
+                return self.golds['used']['VBD'], 4
+            return self.golds['used']['DEFAULT'], 4
         return None, None
 
     @classmethod
@@ -568,10 +573,10 @@ class G2P:
         return [w[0] if isinstance(w, list) and len(w) == 1 else w for w in words]
 
     @classmethod
-    def token_context(cls, ctx, ps):
+    def token_context(cls, ctx, ps, tag):
         vowel = ctx.future_vowel
         vowel = next((None if c in NON_QUOTE_PUNCTS else (c in VOWELS) for c in ps if any(c in s for s in (VOWELS, CONSONANTS, NON_QUOTE_PUNCTS))), vowel) if ps else vowel
-        return TokenContext(future_vowel=vowel)
+        return TokenContext(future_vowel=vowel, future_tag=tag)
 
     @classmethod
     def merge_tokens(cls, tokens, force=False):
@@ -629,7 +634,7 @@ class G2P:
                     w.phonemes, w.rating = self.lexicon(replace(w), ctx)
                 if w.phonemes is None and self.fallback is not None:
                     w.phonemes, w.rating = self.fallback(replace(w))
-                ctx = type(self).token_context(ctx, w.phonemes)
+                ctx = type(self).token_context(ctx, w.phonemes, w.tag)
                 continue
             left, right = 0, len(w)
             should_fallback = False
@@ -642,7 +647,7 @@ class G2P:
                     for x in w[left+1:right]:
                         x.phonemes = ''
                         x.rating = rating
-                    ctx = type(self).token_context(ctx, ps)
+                    ctx = type(self).token_context(ctx, ps, t.tag)
                     right = left
                     left = 0
                 elif left + 1 < right:
