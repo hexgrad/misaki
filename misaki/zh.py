@@ -5,8 +5,8 @@ import re
 import cn2an
 
 class ZHG2P:
-    @classmethod
-    def retone(cls, p):
+    @staticmethod
+    def retone(p):
         p = p.replace('˧˩˧', '↓') # third tone
         p = p.replace('˧˥', '↗')  # second tone
         p = p.replace('˥˩', '↘')  # fourth tone
@@ -15,14 +15,14 @@ class ZHG2P:
         assert chr(809) not in p, p
         return p
 
-    @classmethod
-    def py2ipa(cls, py):
-        return ''.join(cls.retone(p) for p in pinyin_to_ipa(py)[0])
+    @staticmethod
+    def py2ipa(py):
+        return ''.join(ZHG2P.retone(p) for p in pinyin_to_ipa(py)[0])
 
-    @classmethod
-    def word2ipa(cls, w):
+    @staticmethod
+    def word2ipa(w):
         pinyins = lazy_pinyin(w, style=Style.TONE3, neutral_tone_with_five=True)
-        return ''.join(cls.py2ipa(py) for py in pinyins)
+        return ''.join(ZHG2P.py2ipa(py) for py in pinyins)
 
     def __call__(self, text, zh='\u4E00-\u9FFF'):
         if not text:
@@ -34,7 +34,7 @@ class ZHG2P:
             # print(is_zh, segment)
             if is_zh:
                 words = jieba.lcut(segment, cut_all=False)
-                segment = ' '.join(type(self).word2ipa(w) for w in words)
+                segment = ' '.join(ZHG2P.word2ipa(w) for w in words)
             result += segment
             is_zh = not is_zh
         return result.replace(chr(815), '')
