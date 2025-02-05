@@ -1,3 +1,31 @@
+[project]
+name = "misaki"
+version = "0.7.4"
+description = "G2P engine for TTS"
+readme = "README.md"
+authors = [
+    { name = "hexgrad", email = "hello@hexgrad.com" }
+]
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8, <3.13"
+dependencies = [
+    "regex"
+]
+
+[project.optional-dependencies]
+en = ["num2words", "spacy", "spacy-curated-transformers", "phonemizer-fork", "espeakng-loader"]
+ja = ["fugashi", "jaconv", "mojimoji", "unidic-lite"]
+ko = ["g2pk2"]
+zh = ["jieba", "ordered-set", "pypinyin", "cn2an"]
+vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+

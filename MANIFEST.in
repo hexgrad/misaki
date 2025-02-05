@@ -1,4 +1,0 @@
-include misaki/data/*.json
-include misaki/data/*.txt
-include misaki/hangul/data/*.csv
-include misaki/hangul/data/*.tsv
