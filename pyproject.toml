@@ -1,6 +1,6 @@
 [project]
 name = "misaki"
-version = "0.7.4"
+version = "0.7.5"
 description = "G2P engine for TTS"
 readme = "README.md"
 authors = [
