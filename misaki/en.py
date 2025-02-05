@@ -543,6 +543,8 @@ class G2P:
         for k, v in features.items():
             assert isinstance(v, str) or isinstance(v, int) or v in (0.5, -0.5), (k, v)
             for i, j in enumerate(np.where(align.y2x.data == k)[0]):
+                if j >= len(mutable_tokens):
+                    continue
                 if not isinstance(v, str):
                     mutable_tokens[j].stress = v
                 elif v.startswith('/'):
