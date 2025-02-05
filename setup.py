@@ -11,7 +11,7 @@ setup(
         'regex',
     ],
     extras_require={
-        'en': ['num2words', 'spacy', 'spacy-curated-transformers', 'phonemizer'],
+        'en': ['num2words', 'spacy', 'spacy-curated-transformers', 'phonemizer-fork', 'espeakng-loader'],
         'ja': ['fugashi', 'jaconv', 'mojimoji', 'unidic-lite'],
         'ko': ['g2pk2'],
         'zh': ['jieba', 'ordered-set', 'pypinyin', 'cn2an'],

@@ -1,23 +1,7 @@
-### BEGIN ###
-def set_espeak_library():
-    # https://github.com/bootphon/phonemizer/issues/44#issuecomment-1540885186
-    from phonemizer.backend.espeak.wrapper import EspeakWrapper
-    if not EspeakWrapper._ESPEAK_LIBRARY:
-        import os
-        import platform
-        library = dict(
-            Darwin='/opt/homebrew/Cellar/espeak-ng/1.52.0/lib/libespeak-ng.1.dylib',
-            Windows='C:\Program Files\eSpeak NG\libespeak-ng.dll',
-        ).get(platform.system())
-        if library and os.path.exists(library):
-            EspeakWrapper.set_library(library)
-    return EspeakWrapper._ESPEAK_LIBRARY
-
-set_espeak_library()
-#### END ####
-
 import phonemizer
 import re
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
+import espeakng_loader
 
 # EspeakFallback is used as a last resort for English
 class EspeakFallback:
@@ -40,6 +24,11 @@ class EspeakFallback:
 
     def __init__(self, british):
         self.british = british
+        
+        # Set espeak-ng library path and espeak-ng-data
+        EspeakWrapper.set_library(espeakng_loader.get_library_path())
+        # Change data_path as needed when editing espeak-ng phonemes
+        EspeakWrapper.set_data_path(espeakng_loader.get_data_path())
         self.backend = phonemizer.backend.EspeakBackend(
             language=f"en-{'gb' if british else 'us'}",
             preserve_punctuation=True, with_stress=True, tie='^'
