@@ -690,5 +690,5 @@ class G2P:
             else:
                 G2P.resolve_tokens(w)
         tokens = [MToken.merge_tokens(t, unk=self.unk) if isinstance(t, list) else t for t in tokens]
-        result = ''.join(t.phonemes + t.whitespace for t in tokens)
+        result = ''.join((self.unk if t.phonemes is None else t.phonemes) + t.whitespace for t in tokens)
         return result, tokens
