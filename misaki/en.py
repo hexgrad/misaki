@@ -284,7 +284,7 @@ class Lexicon:
     def stem_s(self, word, tag, stress, ctx):
         if len(word) > 2 and word.endswith('s') and not word.endswith('ss') and self.is_known(word[:-1], tag):
             stem = word[:-1]
-        elif (word.endswith("'s") or (len(word) > 4 and word.endswith('es'))) and self.is_known(word[:-2], tag):
+        elif (word.endswith("'s") or (len(word) > 4 and word.endswith('es') and not word.endswith('ies'))) and self.is_known(word[:-2], tag):
             stem = word[:-2]
         elif len(word) > 4 and word.endswith('ies') and self.is_known(word[:-3]+'y', tag):
             stem = word[:-3] + 'y'
