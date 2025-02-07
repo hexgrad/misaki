@@ -3,7 +3,7 @@ allow-direct-references = true
 
 [project]
 name = "misaki"
-version = "0.7.9"
+version = "0.7.10"
 description = "G2P engine for TTS"
 readme = "README.md"
 authors = [
@@ -30,5 +30,3 @@ vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-

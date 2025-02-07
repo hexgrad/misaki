@@ -27,10 +27,10 @@ class ZHG2P:
     def __call__(self, text, zh='\u4E00-\u9FFF'):
         if not text:
             return ''
+        text = cn2an.transform(text, 'an2cn')
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
-        zhstr = cn2an.transform(text, "an2cn")
-        for segment in re.findall(f'[{zh}]+|[^{zh}]+', zhstr):
+        for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
             # print(is_zh, segment)
             if is_zh:
                 words = jieba.lcut(segment, cut_all=False)
