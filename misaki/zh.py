@@ -3,7 +3,6 @@ from pypinyin import lazy_pinyin, Style
 import cn2an
 import jieba
 import re
-import unicodedata
 
 class ZHG2P:
     @staticmethod
@@ -25,19 +24,29 @@ class ZHG2P:
         pinyins = lazy_pinyin(w, style=Style.TONE3, neutral_tone_with_five=True)
         return ''.join(ZHG2P.py2ipa(py) for py in pinyins)
 
-    def __call__(self, text, zh='\u4E00-\u9FFF', punct=';:,.!?…”'):
+    @staticmethod
+    def preprocess(text):
+        text = text.replace('、', ', ').replace('，', ', ')
+        text = text.replace('。', '. ')
+        text = text.replace('«', ' “').replace('»', '” ')
+        text = text.replace('《', ' “').replace('》', '” ')
+        text = text.replace('（', ' (').replace('）', ') ')
+        text = text.replace('！', '! ')
+        text = text.replace('：', ': ')
+        text = text.replace('；', '; ')
+        text = text.replace('？', '? ')
+        return text.strip()
+
+    def __call__(self, text, zh='\u4E00-\u9FFF'):
         if not text:
             return ''
+        text = ZHG2P.preprocess(text)
         text = cn2an.transform(text, 'an2cn')
-        text = text.replace('«', chr(8220)).replace('»', chr(8221))
-        text = unicodedata.normalize('NFKC', text)
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
         for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
             # print(is_zh, segment)
             if is_zh:
-                if result and result[-1] in punct:
-                    result += ' '
                 words = jieba.lcut(segment, cut_all=False)
                 segment = ' '.join(ZHG2P.word2ipa(w) for w in words)
             result += segment
