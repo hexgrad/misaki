@@ -24,7 +24,7 @@ To fallback to espeak:
 # Installing espeak varies across platforms, this silent install works on Colab:
 !apt-get -qq -y install espeak-ng > /dev/null 2>&1
 
-!pip install -q misaki[en] phonemizer
+!pip install -q misaki[en] phonemizer-fork
 
 from misaki import en, espeak
 
