@@ -1111,7 +1111,7 @@ wheels = [
 
 [[package]]
 name = "misaki"
-version = "0.7.5"
+version = "0.7.12"
 source = { editable = "." }
 dependencies = [
     { name = "regex" },
@@ -1126,6 +1126,9 @@ en = [
     { name = "spacy", version = "3.8.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "spacy-curated-transformers", version = "0.2.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "spacy-curated-transformers", version = "0.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+]
+he = [
+    { name = "mishkal-hebrew" },
 ]
 ja = [
     { name = "fugashi" },
@@ -1159,6 +1162,7 @@ requires-dist = [
     { name = "g2pk2", marker = "extra == 'ko'" },
     { name = "jaconv", marker = "extra == 'ja'" },
     { name = "jieba", marker = "extra == 'zh'" },
+    { name = "mishkal-hebrew", marker = "extra == 'he'", specifier = ">=0.1.5" },
     { name = "mojimoji", marker = "extra == 'ja'" },
     { name = "num2words", marker = "extra == 'en'" },
     { name = "num2words", marker = "extra == 'vi'" },
@@ -1172,6 +1176,20 @@ requires-dist = [
     { name = "spacy-curated-transformers", marker = "extra == 'vi'" },
     { name = "underthesea", marker = "extra == 'vi'" },
     { name = "unidic-lite", marker = "extra == 'ja'" },
+]
+
+[[package]]
+name = "mishkal-hebrew"
+version = "0.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "espeakng-loader" },
+    { name = "num2words" },
+    { name = "phonemizer-fork" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/a7/a92b6c93d6272dad0ea707e2dac69c1546ad83cb89f0d567c5dacb961d6d/mishkal_hebrew-0.1.5.tar.gz", hash = "sha256:38cf0477e4d1eb632ce174fb2056b57957f173d88089d07e7c6f9bb0e5d1ffa7", size = 12102 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/ce/58761ac3cdccecd74bf7eb07ad69d966ee61001a12ce3534e3104dd8cbcb/mishkal_hebrew-0.1.5-py3-none-any.whl", hash = "sha256:d46d21bcc2663e6a298114eb68f147fed49ab7716eb0215554eef773b3126483", size = 14493 },
 ]
 
 [[package]]

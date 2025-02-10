@@ -22,6 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 en = ["num2words", "spacy", "spacy-curated-transformers", "phonemizer-fork", "espeakng-loader"]
+he = ["mishkal-hebrew>=0.1.5"]
 ja = ["fugashi", "jaconv", "mojimoji", "unidic-lite"]
 ko = ["g2pk2"]
 zh = ["jieba", "ordered-set", "pypinyin", "cn2an"]
