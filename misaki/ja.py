@@ -1,4 +1,4 @@
-# https://github.com/polm/cutlet/blob/master/cutlet/cutlet.py
+# ADAPTED from https://github.com/polm/cutlet/blob/master/cutlet/cutlet.py
 from dataclasses import dataclass
 from fugashi import Tagger
 from .num2kana import Convert

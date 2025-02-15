@@ -1,4 +1,5 @@
 from .transcription import pinyin_to_ipa
+# from .zh_frontend.zh_frontend import Frontend
 from pypinyin import lazy_pinyin, Style
 import cn2an
 import jieba
@@ -25,23 +26,25 @@ class ZHG2P:
         return ''.join(ZHG2P.py2ipa(py) for py in pinyins)
 
     @staticmethod
-    def preprocess(text):
+    def map_punctuation(text):
         text = text.replace('、', ', ').replace('，', ', ')
-        text = text.replace('。', '. ')
-        text = text.replace('«', ' “').replace('»', '” ')
-        text = text.replace('《', ' “').replace('》', '” ')
-        text = text.replace('（', ' (').replace('）', ') ')
+        text = text.replace('。', '. ').replace('．', '. ')
         text = text.replace('！', '! ')
         text = text.replace('：', ': ')
         text = text.replace('；', '; ')
         text = text.replace('？', '? ')
+        text = text.replace('«', ' “').replace('»', '” ')
+        text = text.replace('《', ' “').replace('》', '” ')
+        text = text.replace('「', ' “').replace('」', '” ')
+        text = text.replace('【', ' “').replace('】', '” ')
+        text = text.replace('（', ' (').replace('）', ') ')
         return text.strip()
 
     def __call__(self, text, zh='\u4E00-\u9FFF'):
         if not text:
             return ''
-        text = ZHG2P.preprocess(text)
         text = cn2an.transform(text, 'an2cn')
+        text = ZHG2P.map_punctuation(text)
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
         for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
