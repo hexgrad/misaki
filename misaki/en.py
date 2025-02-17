@@ -11,8 +11,8 @@ import spacy
 import unicodedata
 
 DIPHTHONGS = frozenset('AIOQWYʤʧ')
-def stress_weight(token):
-    return sum(2 if c in DIPHTHONGS else 1 for c in self.phonemes) if self.phonemes else 0
+def stress_weight(ps):
+    return sum(2 if c in DIPHTHONGS else 1 for c in ps) if ps else 0
 
 @dataclass
 class TokenContext:
@@ -565,7 +565,7 @@ class G2P:
                 t.prespace = prespace
         if prespace:
             return
-        indices = [(PRIMARY_STRESS in t.phonemes, stress_weight(t), i) for i, t in enumerate(tokens) if t.phonemes]
+        indices = [(PRIMARY_STRESS in t.phonemes, stress_weight(t.phonemes), i) for i, t in enumerate(tokens) if t.phonemes]
         if len(indices) == 2 and len(tokens[indices[0][2]].text) == 1:
             i = indices[1][2]
             tokens[i].phonemes = apply_stress(tokens[i].phonemes, -0.5)
