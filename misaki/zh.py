@@ -51,7 +51,7 @@ class ZHG2P:
             return ''
         text = cn2an.transform(text, 'an2cn')
         text = ZHG2P.map_punctuation(text)
-        if self.version == '1.1':
+        if self.frontend is not None:
             return self.frontend(text)
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''

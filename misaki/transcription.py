@@ -1,3 +1,4 @@
+# ADAPTED from https://github.com/stefantaubert/pinyin-to-ipa/blob/master/src/pinyin_to_ipa/transcription.py
 import itertools
 from typing import Dict, Generator, List, Optional, Tuple
 
