@@ -25,7 +25,6 @@ from pypinyin import Style
 from pypinyin_dict.phrase_pinyin_data import large_pinyin
 
 from .tone_sandhi import ToneSandhi
-from .zh_normalization.text_normlization import TextNormalizer
 
 INITIALS = [
     'b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'zh', 'ch', 'sh',
@@ -75,8 +74,6 @@ class ZHFrontend:
         }
         # tone sandhi
         self.tone_modifier = ToneSandhi()
-        # TN
-        self.text_normalizer = TextNormalizer()
         # g2p
         self._init_pypinyin()
 

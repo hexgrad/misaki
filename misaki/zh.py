@@ -1,11 +1,17 @@
 from .transcription import pinyin_to_ipa
-# from .zh_frontend.zh_frontend import Frontend
 from pypinyin import lazy_pinyin, Style
 import cn2an
 import jieba
 import re
 
 class ZHG2P:
+    def __init__(self, version=None, unk='❓'):
+        self.version = version
+        self.frontend = None
+        if version == '1.1':
+            from .zh_frontend import ZHFrontend
+            self.frontend = ZHFrontend(unk=unk)
+
     @staticmethod
     def retone(p):
         p = p.replace('˧˩˧', '↓') # third tone
@@ -45,6 +51,8 @@ class ZHG2P:
             return ''
         text = cn2an.transform(text, 'an2cn')
         text = ZHG2P.map_punctuation(text)
+        if self.version == '1.1':
+            return self.frontend(text)
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
         for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
@@ -54,4 +62,4 @@ class ZHG2P:
                 segment = ' '.join(ZHG2P.word2ipa(w) for w in words)
             result += segment
             is_zh = not is_zh
-        return result.replace(chr(815), '')
+        return result.replace(chr(815), ''), []
