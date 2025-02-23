@@ -175,6 +175,8 @@ class ZHFrontend:
         for word, pos in seg_cut:
             if pos == 'x' and '\u4E00' <= min(word) and max(word) <= '\u9FFF':
                 pos = 'X'
+            elif pos != 'x' and word in self.punc:
+                pos = 'x'
             tk = MToken(text=word, tag=pos, whitespace='')
             if pos in ('x', 'eng'):
                 if not word.isspace():
@@ -184,6 +186,8 @@ class ZHFrontend:
                 elif tokens:
                     tokens[-1].whitespace += word
                 continue
+            elif tokens and tokens[-1].tag not in ('x', 'eng') and not tokens[-1].whitespace:
+                tokens[-1].whitespace = '/'
 
             # g2p
             sub_initials, sub_finals = self._get_initials_finals(word)
@@ -212,7 +216,7 @@ class ZHFrontend:
                 # replace punctuation by ` `
                 # if c and c in self.punc:
                 #     phones.append(c)
-                if v:# and v not in self.rhy_phns:
+                if v and (v not in self.punc or v != c):# and v not in self.rhy_phns:
                     phones.append(v)
             phones = '_'.join(phones).replace('_eR', '_er').replace('R', '_R')
             tk.phonemes = re.sub(r'(?=\d)', '_', phones)
