@@ -36,9 +36,14 @@ INITIALS += ['y', 'w', ' ']#, 'spl', 'spn', 'sil']
 # 0 for None, 5 for neutral
 TONES = ["0", "1", "2", "3", "4", "5"]
 
+ZH_MAP = {"b":"ㄅ","p":"ㄆ","m":"ㄇ","f":"ㄈ","d":"ㄉ","t":"ㄊ","n":"ㄋ","l":"ㄌ","g":"ㄍ","k":"ㄎ","h":"ㄏ","j":"ㄐ","q":"ㄑ","x":"ㄒ","zh":"ㄓ","ch":"ㄔ","sh":"ㄕ","r":"ㄖ","z":"ㄗ","c":"ㄘ","s":"ㄙ","a":"ㄚ","o":"ㄛ","e":"ㄜ","ie":"ㄝ","ai":"ㄞ","ei":"ㄟ","ao":"ㄠ","ou":"ㄡ","an":"ㄢ","en":"ㄣ","ang":"ㄤ","eng":"ㄥ","er":"ㄦ","i":"ㄧ","u":"ㄨ","v":"ㄩ","ii":"ㄭ","iii":"十","ve":"月","ia":"压","ian":"言","iang":"阳","iao":"要","in":"阴","ing":"应","iong":"用","iou":"又","ong":"中","ua":"穵","uai":"外","uan":"万","uang":"王","uei":"为","uen":"文","ueng":"瓮","uo":"我","van":"元","vn":"云"}
+for p in ';:,.!?/—…"()“” 12345R':
+    assert p not in ZH_MAP, p
+    ZH_MAP[p] = p
 
 class ZHFrontend:
-    def __init__(self):
+    def __init__(self, unk='❓'):
+        self.unk = unk
         self.punc = frozenset(';:,.!?—…"()“”')
         self.phrases_dict = {
             '开户行': [['ka1i'], ['hu4'], ['hang2']],
@@ -219,30 +224,10 @@ class ZHFrontend:
                 if v and (v not in self.punc or v != c):# and v not in self.rhy_phns:
                     phones.append(v)
             phones = '_'.join(phones).replace('_eR', '_er').replace('R', '_R')
-            tk.phonemes = re.sub(r'(?=\d)', '_', phones)
+            phones = re.sub(r'(?=\d)', '_', phones).split('_')
+            tk.phonemes = ''.join(ZH_MAP.get(p, self.unk) for p in phones)
             tokens.append(tk)
 
-        return tokens
+        result = ''.join((self.unk if tk.phonemes is None else tk.phonemes) + tk.whitespace for tk in tokens)
 
-    # def get_phonemes(self,
-    #                  sentence: str,
-    #                  merge_sentences: bool=True,
-    #                  with_erhua: bool=True,
-    #                  print_info: bool=False) -> List[List[str]]:
-    #     """
-    #     Main function to do G2P
-    #     """
-    #     # TN & Text Segmentation
-    #     sentences = self.text_normalizer.normalize(sentence)
-    #     # Prosody & WS & g2p & tone sandhi
-    #     phonemes = self._g2p(
-    #         sentences, merge_sentences=merge_sentences, with_erhua=with_erhua)
-    #     if print_info:
-    #         print("----------------------------")
-    #         print("text norm results:")
-    #         print(sentences)
-    #         print("----------------------------")
-    #         print("g2p results:")
-    #         print(phonemes)
-    #         print("----------------------------")
-    #     return phonemes
+        return result, tokens
