@@ -1,5 +1,6 @@
 from .transcription import pinyin_to_ipa
 from pypinyin import lazy_pinyin, Style
+from typing import Tuple
 import cn2an
 import jieba
 import re
@@ -46,13 +47,14 @@ class ZHG2P:
         text = text.replace('（', ' (').replace('）', ') ')
         return text.strip()
 
-    def __call__(self, text, zh='\u4E00-\u9FFF'):
+    def __call__(self, text, zh='\u4E00-\u9FFF') -> Tuple[str, None]:
         if not text:
             return ''
         text = cn2an.transform(text, 'an2cn')
         text = ZHG2P.map_punctuation(text)
         if self.frontend is not None:
-            return self.frontend(text)
+            # TODO: Return List[MToken] instead of None
+            return self.frontend(text), None
         is_zh = re.match(f'[{zh}]', text[0])
         result = ''
         for segment in re.findall(f'[{zh}]+|[^{zh}]+', text):
@@ -62,4 +64,4 @@ class ZHG2P:
                 segment = ' '.join(ZHG2P.word2ipa(w) for w in words)
             result += segment
             is_zh = not is_zh
-        return result.replace(chr(815), ''), []
+        return result.replace(chr(815), ''), None

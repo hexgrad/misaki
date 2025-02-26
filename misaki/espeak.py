@@ -1,7 +1,8 @@
+from phonemizer.backend.espeak.wrapper import EspeakWrapper
+from typing import Tuple
+import espeakng_loader
 import phonemizer
 import re
-from phonemizer.backend.espeak.wrapper import EspeakWrapper
-import espeakng_loader
 
 # EspeakFallback is used as a last resort for English
 class EspeakFallback:
@@ -74,14 +75,14 @@ class EspeakG2P:
             tie='^', language_switch='remove-flags'
         )
 
-    def __call__(self, text):
+    def __call__(self, text) -> Tuple[str, None]:
         # Angles to curly quotes
         text = text.replace('«', chr(8220)).replace('»', chr(8221))
         # Parentheses to angles
         text = text.replace('(', '«').replace(')', '»')
         ps = self.backend.phonemize([text])
         if not ps:
-            return ''
+            return '', None
         ps = ps[0].strip()
         for old, new in type(self).E2M:
             ps = ps.replace(old, new)
@@ -89,4 +90,4 @@ class EspeakG2P:
         ps = ps.replace('^', '').replace('-', '')
         # Angles back to parentheses
         ps = ps.replace('«', '(').replace('»', ')')
-        return ps
+        return ps, None

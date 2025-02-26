@@ -1,13 +1,14 @@
 # ADAPTED from https://github.com/polm/cutlet/blob/master/cutlet/cutlet.py
+from . import data
+from .num2kana import Convert
 from dataclasses import dataclass
 from fugashi import Tagger
-from .num2kana import Convert
+from typing import Tuple
 import importlib.resources
 import jaconv
 import mojimoji
 import re
 import unicodedata
-from . import data
 
 HEPBURN = {
 chr(12353):'a', #ぁ
@@ -263,10 +264,11 @@ class JAG2P:
         self.table = dict(HEPBURN) # make a copy so we can modify it
         self.exceptions = {}
 
-    def __call__(self, text):
+    def __call__(self, text) -> Tuple[str, None]:
         """Build a complete string from input text."""
+        # TODO: Return List[MToken] instead of None
         if not text:
-            return ''
+            return '', None
         text = self._normalize_text(text)
         words = [Word(
             w.surface,
@@ -277,7 +279,7 @@ class JAG2P:
         out = ''.join([str(tok) for tok in tokens])
         ps = re.sub(r'\s+', ' ', out.strip()).replace('(', '«').replace(')', '»')
         ps = re.sub(r'(?<![!",.:;?»—…”]) (?=ʔ)|(?<=ʔ) (?!["«“])', '', ps)
-        return ps
+        return ps, None
 
     def _normalize_text(self, text):
         """Given text, normalize variations in Japanese.

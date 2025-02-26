@@ -2,7 +2,7 @@ from . import data
 from .token import MToken
 from dataclasses import dataclass, replace
 from num2words import num2words
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 import importlib.resources
 import json
 import numpy as np
@@ -576,7 +576,7 @@ class G2P:
         for _, _, i in indices:
             tokens[i].phonemes = apply_stress(tokens[i].phonemes, -0.5)
 
-    def __call__(self, text: str, preprocess=True):
+    def __call__(self, text: str, preprocess=True) -> Tuple[str, List[MToken]]:
         preprocess = G2P.preprocess if preprocess == True else preprocess
         text, tokens, features = preprocess(text) if preprocess else (text, [], {})
         tokens = self.tokenize(text, tokens, features)
