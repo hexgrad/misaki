@@ -75,7 +75,7 @@ class ZHG2P:
         for en, zh in re.findall(r'([A-Za-z \'-]*[A-Za-z][A-Za-z \'-]*)|([^A-Za-z]+)', text):
             en, zh = en.strip(), zh.strip()
             if zh:
-                segments.append(self.frontend(zh))
+                segments.append(self.frontend(zh)[0])
             elif en_callable is None:
                 segments.append(self.unk)
             else:
