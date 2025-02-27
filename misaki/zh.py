@@ -60,7 +60,7 @@ class ZHG2P:
                 segment = ' '.join(ZHG2P.word2ipa(w) for w in words)
             result += segment
             is_zh = not is_zh
-        return result.replace(chr(815), ''), None
+        return result.replace(chr(815), '')
 
     def __call__(self, text, en_callable=None) -> Tuple[str, None]:
         if not text.strip():
