@@ -433,7 +433,8 @@ class G2P:
         name = f"en_core_web_{'trf' if trf else 'sm'}"
         if not spacy.util.is_package(name):
             spacy.cli.download(name)
-        self.nlp = spacy.load(name)
+        components = ['transformer' if trf else 'tok2vec', 'tagger']
+        self.nlp = spacy.load(name, enable=components)
         self.lexicon = Lexicon(british)
         self.fallback = fallback if fallback else None
         self.unk = unk
