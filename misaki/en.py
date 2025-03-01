@@ -87,6 +87,9 @@ def apply_stress(ps, stress):
         return restress(PRIMARY_STRESS + ps)
     return ps
 
+def is_digit(text):
+    return bool(re.match(r'^[0-9]+$', text))
+
 class Lexicon:
     @staticmethod
     def grow_dictionary(d):
@@ -368,7 +371,7 @@ class Lexicon:
                 extend_num(num, first=i==0)
                 result.append(self.stem_s(unit+'s', None, None, None) if abs(num) != 1 and unit != 'pence' else self.lookup(unit, None, None, None))
         else:
-            if word.isdigit():
+            if is_digit(word):
                 word = num2words(int(word), to='ordinal' if suffix in ORDINALS else ('year' if not result and len(word) == 4 else 'cardinal'))
             elif '.' not in word:
                 word = num2words(int(word.replace(',', '')), to='ordinal' if suffix in ORDINALS else 'cardinal')
@@ -400,14 +403,14 @@ class Lexicon:
 
     @staticmethod
     def is_number(word, is_head):
-        if all(not c.isdigit() for c in word):
+        if all(not is_digit(c) for c in word):
             return False
         suffixes = ('ing', "'d", 'ed', "'s", *ORDINALS, 's')
         for s in suffixes:
             if word.endswith(s):
                 word = word[:-len(s)]
                 break
-        return all(c.isdigit() or c in ',.' or (is_head and i == 0 and c == '-') for i, c in enumerate(word))
+        return all(is_digit(c) or c in ',.' or (is_head and i == 0 and c == '-') for i, c in enumerate(word))
 
     def __call__(self, t, ctx):
         word = (t.text if t.alias is None else t.alias).replace(chr(8216), "'").replace(chr(8217), "'")
@@ -449,7 +452,7 @@ class G2P:
             result += text[last_end:m.start()]
             tokens.extend(text[last_end:m.start()].split())
             f = m.group(2)
-            if f[1 if f[:1] in ('-', '+') else 0:].isdigit():
+            if is_digit(f[1 if f[:1] in ('-', '+') else 0:]):
                 f = int(f)
             elif f in ('0.5', '+0.5'):
                 f = 0.5
@@ -552,7 +555,7 @@ class G2P:
     @staticmethod
     def resolve_tokens(tokens):
         text = ''.join(t.text + t.whitespace for t in tokens[:-1]) + tokens[-1].text
-        prespace = ' ' in text or '/' in text or len({0 if c.isalpha() else (1 if c.isdigit() else 2) for c in text if c not in SUBTOKEN_JUNKS}) > 1
+        prespace = ' ' in text or '/' in text or len({0 if c.isalpha() else (1 if is_digit(c) else 2) for c in text if c not in SUBTOKEN_JUNKS}) > 1
         for i, t in enumerate(tokens):
             if t.phonemes is None:
                 if i == len(tokens) - 1 and t.text in NON_QUOTE_PUNCTS:
