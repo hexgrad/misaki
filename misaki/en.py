@@ -402,6 +402,13 @@ class Lexicon:
         return f'{ps} {currency}' if currency else ps
 
     @staticmethod
+    def numeric_if_needed(c):
+        if not c.isnumeric():
+            return c
+        n = unicodedata.numeric(c)
+        return str(int(n)) if n == int(n) else c
+
+    @staticmethod
     def is_number(word, is_head):
         if all(not is_digit(c) for c in word):
             return False
@@ -415,6 +422,7 @@ class Lexicon:
     def __call__(self, t, ctx):
         word = (t.text if t.alias is None else t.alias).replace(chr(8216), "'").replace(chr(8217), "'")
         word = unicodedata.normalize('NFKC', word)
+        word = ''.join(Lexicon.numeric_if_needed(c) for c in word)
         stress = None if word == word.lower() else self.cap_stresses[int(word == word.upper())]
         ps, rating = self.get_word(word, t.tag, stress, ctx)
         if ps is not None:
