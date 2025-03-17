@@ -1,4 +1,5 @@
 # COPIED from https://github.com/Greatdane/Convert-Numbers-to-Japanese/blob/master/Convert-Numbers-to-Japanese.py
+# Original License: MIT
 # Japanese Number Converter
 # - Currently using length functions - possible to use Recursive Functions? Difficult with the many exceptions
 # - Works up to 9 figures (999999999)

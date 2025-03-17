@@ -52,6 +52,7 @@ print(phonemes) # nˈW Wɾɑfdˈɪkʃənˌɛɹi wˈɜɹdz ɑɹ hˈændəld bI ˈ
 - https://github.com/hexgrad/misaki/blob/main/EN_PHONES.md
 
 ### Japanese
+- https://github.com/tsukumijima/pyopenjtalk-plus
 - https://github.com/polm/cutlet
 - https://github.com/polm/fugashi
 - https://github.com/ikegami-yukino/jaconv
