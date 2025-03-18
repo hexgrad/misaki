@@ -311,4 +311,6 @@ class JAG2P:
             if tk._.mora_size and not tk._.chain_flag and result and result[-1] in TAILS:
                 result += ' '
             result += tk.phonemes + tk.whitespace
+        if tokens and tokens[-1].whitespace and result.endswith(tokens[-1].whitespace):
+            result = result[:-len(tokens[-1].whitespace)]
         return result, tokens
