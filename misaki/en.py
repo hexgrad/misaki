@@ -576,7 +576,7 @@ class G2P:
             if token._.alias is None and token.phonemes is None:
                 tks = [replace(
                     token, text=t, whitespace='',
-                    _=MToken.Underscore(is_head=True, num_flags='', prespace=False)
+                    _=MToken.Underscore(is_head=True, num_flags=token._.num_flags, prespace=False)
                 ) for t in subtokenize(token.text)]
             else:
                 tks = [token]

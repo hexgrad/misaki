@@ -202,10 +202,14 @@ for k in M2P:
 # TODO
 M2P['ッ'] = 'ʔ'
 M2P['ン'] = 'ɴ'
-M2P['ー'] = 'ː'
-assert len(M2P) == 180, len(M2P)
+# M2P['ー'] = 'ː'
+assert len(M2P) == 179, len(M2P)
 
-TAILS = frozenset({v[-1] for v in M2P.values()})
+TAILS = frozenset([*[v[-1] for v in M2P.values()], ']'])
+assert len(TAILS) == 9, len(TAILS)
+
+# VOWELS = frozenset('aeioɨɯ')
+# assert len(VOWELS) == 6 and all(v in TAILS for v in VOWELS), len(VOWELS)
 
 PUNCT_MAP = {'«':'“','»':'”','、':',','。':'.','《':'“','》':'”','「':'“','」':'”','【':'“','】':'”','！':'!','（':'(','）':')','：':':','；':';','？':'?'}
 assert all(len(k) == len(v) == 1 for k, v in PUNCT_MAP.items())
@@ -234,7 +238,7 @@ class JAG2P:
     def pron2moras(pron: str) -> List[str]:
         moras = []
         for k in pron:
-            if k not in M2P:
+            if k != 'ー' and k not in M2P:
                 continue
             if moras and k in JAG2P.SMALL_COMBO_KANA and moras[-1][-1] != k:
                 moras[-1] += k
@@ -242,11 +246,30 @@ class JAG2P:
                 moras.append(k)
         return moras
 
+    @staticmethod
+    def mora2phones(m: str, last_p: str, future: Optional[str]) -> str:
+        if m == 'ー':
+            return last_p
+        if m != 'ン':
+            return M2P[m]
+        # https://en.wikipedia.org/wiki/N_(kana)
+        if future:
+            future = M2P[future][0]
+            if future in 'mpb':
+                return 'm' # m before m,p,b
+            elif future in 'kɡ':
+                return 'ŋ' # ŋ before k,ɡ
+            elif future in 'ɲʨʥ':
+                return 'ɲ' # ɲ before ɲ,ʨ,ʥ
+            elif future in 'ntdɽz':
+                return 'n' # n before n,t,d,ɽ,z
+        return 'ɴ' # ɴ otherwise
+
     def __call__(self, text) -> Tuple[str, Optional[List[MToken]]]:
         if self.cutlet:
             return self.cutlet(text)
         tokens = []
-        last_accent = 0
+        last_a, last_p = 0, ''
         acc, mcount = None, 0
         for word in pyopenjtalk.run_frontend(text):
             pron, mora_size = word['pron'], word['mora_size']
@@ -262,14 +285,14 @@ class JAG2P:
             for _ in moras:
                 mcount += 1
                 if acc == 0:
-                    accents.append(0 if mcount == 1 else (1 if last_accent == 0 else 2))
+                    accents.append(0 if mcount == 1 else (1 if last_a == 0 else 2))
                 elif acc == mcount:
                     accents.append(3)
                 elif 1 < mcount < acc:
-                    accents.append(1 if last_accent == 0 else 2)
+                    accents.append(1 if last_a == 0 else 2)
                 else:
                     accents.append(0)
-                last_accent = accents[-1]
+                last_a = accents[-1]
             assert len(moras) == len(accents)
             surface = word['string']
             if surface in PUNCT_MAP:
@@ -277,16 +300,18 @@ class JAG2P:
             whitespace, phonemes = '', None
             if moras:
                 phonemes = ''
-                for m, a in zip(moras, accents):
-                    ps = M2P[m]
-                    # phonemes += ps[:-1]
-                    if a == 3:
-                        phonemes += '`'
-                    elif a == 2:
-                        phonemes += 'ˈ'
+                for i, (m, a) in enumerate(zip(moras, accents)):
+                    ps = JAG2P.mora2phones(m, last_p=last_p, future=moras[i+1] if i < len(moras)-1 else None)
+                    if a in (0, 2):# or all(v not in ps for v in VOWELS):
+                        phonemes += ps
                     elif a == 1:
-                        phonemes += 'ˌ'
-                    phonemes += ps#[-1]
+                        phonemes += '[' + ps
+                    # elif a == 2:
+                    #     phonemes += ps[:-1] + 'ˈ' + ps[-1]
+                    else:
+                        assert a == 3, a
+                        phonemes += ps + ']'
+                    last_p = ps[-1:]
             elif surface and all(s in PUNCT_VALUES for s in surface):
                 phonemes = surface
                 if surface[-1] in PUNCT_STOPS:
@@ -308,7 +333,7 @@ class JAG2P:
             if tk.phonemes is None:
                 result += self.unk + tk.whitespace
                 continue
-            if tk._.mora_size and not tk._.chain_flag and result and result[-1] in TAILS:
+            if tk._.mora_size and not tk._.chain_flag and result and result[-1] in TAILS and not tk._.moras[0] == 'ン':
                 result += ' '
             result += tk.phonemes + tk.whitespace
         if tokens and tokens[-1].whitespace and result.endswith(tokens[-1].whitespace):
