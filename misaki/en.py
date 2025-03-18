@@ -591,7 +591,7 @@ class G2P:
                 elif tk.tag == ':' and tk.text in ('-', '–'):
                     tk.phonemes = '—'
                     tk._.rating = 3
-                elif tk.tag in PUNCT_TAGS and any(not (97 <= ord(c.lower()) <= 122) for c in tk.text):
+                elif tk.tag in PUNCT_TAGS and not all(97 <= ord(c.lower()) <= 122 for c in tk.text):
                     tk.phonemes = PUNCT_TAG_PHONEMES.get(tk.tag, ''.join(c for c in tk.text if c in PUNCTS))
                     tk._.rating = 4
                     # if not tk.phonemes:
