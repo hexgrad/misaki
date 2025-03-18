@@ -207,6 +207,18 @@ assert len(M2P) == 180, len(M2P)
 
 TAILS = frozenset({v[-1] for v in M2P.values()})
 
+PUNCT_MAP = {'«':'“','»':'”','、':',','。':'.','《':'“','》':'”','「':'“','」':'”','【':'“','】':'”','！':'!','（':'(','）':')','：':':','；':';','？':'?'}
+assert all(len(k) == len(v) == 1 for k, v in PUNCT_MAP.items())
+
+PUNCT_VALUES = frozenset('!"(),.:;?—“”…')
+assert len(PUNCT_VALUES) == 13, len(PUNCT_VALUES)
+
+PUNCT_STARTS = frozenset('(“')
+assert len(PUNCT_STARTS) == 2, len(PUNCT_STARTS)
+
+PUNCT_STOPS = frozenset('!),.:;?”')
+assert len(PUNCT_STOPS) == 8, len(PUNCT_STOPS)
+
 class JAG2P:
     SMALL_COMBO_KANA = frozenset(['ァ', 'ィ', 'ゥ', 'ェ', 'ォ', 'ャ', 'ュ', 'ョ'])
 
@@ -259,20 +271,33 @@ class JAG2P:
                     accents.append(0)
                 last_accent = accents[-1]
             assert len(moras) == len(accents)
-            phonemes = '' if moras else None
-            for m, a in zip(moras, accents):
-                ps = M2P[m]
-                # phonemes += ps[:-1]
-                if a == 3:
-                    phonemes += '`'
-                elif a == 2:
-                    phonemes += 'ˈ'
-                elif a == 1:
-                    phonemes += 'ˌ'
-                phonemes += ps#[-1]
+            surface = word['string']
+            if surface in PUNCT_MAP:
+                surface = PUNCT_MAP[surface]
+            whitespace, phonemes = '', None
+            if moras:
+                phonemes = ''
+                for m, a in zip(moras, accents):
+                    ps = M2P[m]
+                    # phonemes += ps[:-1]
+                    if a == 3:
+                        phonemes += '`'
+                    elif a == 2:
+                        phonemes += 'ˈ'
+                    elif a == 1:
+                        phonemes += 'ˌ'
+                    phonemes += ps#[-1]
+            elif surface and all(s in PUNCT_VALUES for s in surface):
+                phonemes = surface
+                if surface[-1] in PUNCT_STOPS:
+                    whitespace = ' '
+                    if tokens:
+                        tokens[-1].whitespace = ''
+                elif surface[-1] in PUNCT_STARTS and tokens and not tokens[-1].whitespace:
+                    tokens[-1].whitespace = ' '
             tokens.append(MToken(
-                text=word['string'], tag=word['pos'],
-                whitespace='', phonemes=phonemes,
+                text=surface, tag=word['pos'],
+                whitespace=whitespace, phonemes=phonemes,
                 _=MToken.Underscore(
                     pron=pron, acc=word['acc'], mora_size=mora_size,
                     chain_flag=chain_flag, moras=moras, accents=accents
@@ -280,11 +305,10 @@ class JAG2P:
             ))
         result = ''
         for tk in tokens:
-            if tk.phonemes:
-                if not tk._.chain_flag and result and result[-1] in TAILS:
-                    result += ' '
-                result += tk.phonemes
-            else:
-                result += tk.text
-            result += tk.whitespace
+            if tk.phonemes is None:
+                result += self.unk + tk.whitespace
+                continue
+            if tk._.mora_size and not tk._.chain_flag and result and result[-1] in TAILS:
+                result += ' '
+            result += tk.phonemes + tk.whitespace
         return result, tokens
