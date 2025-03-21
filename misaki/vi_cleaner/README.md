@@ -1,0 +1,1 @@
+The contents of `vi_cleaner` were MODIFIED from https://github.com/CodeLinkIO/Vietnamese-text-normalization with extended dictionaries in `abbreviation_vi.py`, `acronym_vi.py` and `currency_vi.py` coming from https://github.com/v-nhandt21/Vinorm/tree/master/vinorm/Mapping
