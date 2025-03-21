@@ -1,14 +1,10 @@
 import re
-from string import punctuation
-from .en import G2P
+from .en import G2P, LINK_REGEX
 from underthesea.pipeline.word_tokenize import tokenize, regex_tokenize
 import re
-from .num2vi import n2w, n2w_single
+from .vi_cleaner import ViCleaner
 from collections import deque
-from . import data
-import importlib.resources
-import json
-from dataclasses import dataclass
+from .token import MToken
 
 # import prosodic as p
 #  (C1)(w)V(G|C2)+T
@@ -147,14 +143,9 @@ Cus_qu = {u'quy' : u'kwi', u'qúy' : u'kwi', u'qùy' : u'kwi', u'qủy' : u'kwi'
 # letter pronunciation
 EN = {"a":"ây","b":"bi","c":"si","d":"đi","e":"i","f":"ép","g":"giy","h":"hếch","i":"ai","j":"giây","k":"cây","l":"eo","m":"em","n":"en","o":"âu","p":"pi","q":"kiu","r":"a","s":"ét","t":"ti","u":"diu","ư":"ư","v":"vi","w":"đắp liu","x":"ít","y":"quai","z":"giét"}
 VI = {"a":"a","ă":"á","â":"ớ","b":"bê","c":"cê","d":"dê","đ":"đê","e":"e","ê":"ê","f":"phờ","g":"gờ","h":"hờ","i":"i","j":"giây","k":"ka","l":"lờ","m":"mờ","n":"nờ","o":"o","ô":"ô","ơ":"ơ","p":"pờ","q":"quy","r":"rờ","s":"sờ","t":"tờ","u":"u","ư":"ư","v":"vi","w":"gờ","x":"xờ","y":"i","z":"gia"}
-vi_syms = ['ɯəj', 'ɤ̆j', 'ʷiə', 'ɤ̆w', 'ɯəw', 'ʷet', 'iəw', 'uəj', 'ʷen', 'tʰw', 'ʷɤ̆', 'ʷiu', 'kwi', 'ŋ͡m', 'k͡p', 'cw', 'jw', 'uə', 'eə', 'bw', 'oj', 'ʷi', 'vw', 'ăw', 'ʈw', 'ʂw', 'aʊ', 'fw', 'ɛu', 'tʰ', 'tʃ', 'ɔɪ', 'xw', 'ʷɤ', 'ɤ̆', 'ŋw', 'ʊə', 'zi', 'ʷă', 'dw', 'eɪ', 'aɪ', 'ew', 'iə', 'ɣw', 'zw', 'ɯj', 'ʷɛ', 'ɯw', 'ɤj', 'ɔ:', 'əʊ', 'ʷa', 'mw', 'ɑ:', 'hw', 'ɔj', 'uj', 'lw', 'ɪə', 'ăj', 'u:', 'aw', 'ɛj', 'iw', 'aj', 'ɜ:', 'kw', 'nw', 't∫', 'ɲw', 'eo', 'sw', 'tw', 'ʐw', 'iɛ', 'ʷe', 'i:', 'ɯə', 'dʒ', 'ɲ', 'θ', 'ʌ', 'l', 'w', '1', 'ɪ', 'ɯ', 'd', '∫', 'p', 'ə', 'u', 'o', '3', 'ɣ', '!', 'ð', 'ʧ', '6', 'ʒ', 'ʐ', 'z', 'v', 'g', 'ă', 'æ', 'ɤ', '2', 'ʤ', 'i', '.', 'ɒ', 'b', 'h', 'n', 'ʂ', 'ɔ', 'ɛ', 'k', 'm', '5', ' ', 'c', 'j', 'x', 'ʈ', ',', '4', 'ʊ', 's', 'ŋ', 'a', 'ʃ', '?', 'r', ':', 'η', 'f', ';', 'e', 't', "'"]
+vi_syms = ['ɯəj', 'ɤ̆j', 'ʷiə', 'ɤ̆w', 'ɯəw', 'ʷet', 'iəw', 'uəj', 'ʷen', 'tʰw', 'ʷɤ̆', 'ʷiu', 'kwi', 'ŋ͡m', 'k͡p', 'cw', 'jw', 'uə', 'eə', 'bw', 'oj', 'ʷi', 'vw', 'ăw', 'ʈw', 'ʂw', 'aʊ', 'fw', 'ɛu', 'tʰ', 'tʃ', 'ɔɪ', 'xw', 'ʷɤ', 'ɤ̆', 'ŋw', 'ʊə', 'zi', 'ʷă', 'dw', 'eɪ', 'aɪ', 'ew', 'iə', 'ɣw', 'zw', 'ɯj', 'ʷɛ', 'ɯw', 'ɤj', 'ɔ:', 'əʊ', 'ʷa', 'mw', 'ɑ:', 'hw', 'ɔj', 'uj', 'lw', 'ɪə', 'ăj', 'u:', 'aw', 'ɛj', 'iw', 'aj', 'ɜ:', 'kw', 'nw', 'ɲw', 'eo', 'sw', 'tw', 'ʐw', 'iɛ', 'ʷe', 'i:', 'ɯə', 'ɲ', 'θ', 'ʌ', 'l', 'w', '1', 'ɪ', 'ɯ', 'd', 'p', 'ə', 'u', 'o', '3', 'ɣ', '!', 'ð', 'ʧ', '6', 'ʒ', 'ʐ', 'z', 'v', 'g', 'ă', 'æ', 'ɤ', '2', 'ʤ', 'i', '.', 'b', 'h', 'n', 'ʂ', 'ɔ', 'ɛ', 'k', 'm', '5', ' ', 'c', 'j', 'x', 'ʈ', ',', '4', 'ʊ', 's', 'ŋ', 'a', 'ʃ', '?', 'r', ':', 'f', ';', 'e', 't', "'", '–']
 
-with importlib.resources.open_text(data, 'vi_symbols.json', encoding = "utf-8") as r:
-    SYMBOL_MAPPING = json.load(r)
-with importlib.resources.open_text(data, 'vi_teencode.json', encoding = "utf-8") as r:
-    TEENCODE_MAPPING = json.load(r)
 NUMBER_REGEX = re.compile(regex_tokenize.number)
-SYMBOL_REGEX = re.compile('|'.join(re.escape(symbol) for symbol in SYMBOL_MAPPING.keys()))
 EN_VI_REGEX = re.compile("^[!-~“”–" + regex_tokenize.VIETNAMESE_CHARACTERS_LOWER + "]+$", re.IGNORECASE)
 VI_ONLY = re.compile('|'.join(re.escape(c) for c in regex_tokenize.VIETNAMESE_CHARACTERS_LOWER if not c.isascii()), re.IGNORECASE)
 
@@ -341,7 +332,7 @@ def convert(word, dialect, glottal, pham, cao, palatals, delimit):
         if None in (ons, nuc, cod, ton):
             seq = u'['+word+u']'
         else:
-            seq = delimit + delimit.join(filter(None, (ons, nuc, cod, ton)))+delimit
+            seq = delimit.join(p or '' for p in (ons, nuc, cod, ton))
     except (TypeError):
         pass
 
@@ -377,41 +368,17 @@ def Parsing(listParse, text, delimit):
             output += delimit + undefine_symbol
     return output.rstrip()+delimit
 
-# Pseudo implementation of vinorm
-def TTSnorm(text, use_linking_words = True):
-    def number_fn(match):
-        number = ''.join([c for c in match.group('number') if c.isdigit()])
-        if len(number) == 0:
-            return ''
-        if len(number) > 1:
-            number = number.removeprefix('0')
-        if use_linking_words:
-            words = n2w(number)
-        else:
-            words = n2w_single(number)
-        return words
-    text = NUMBER_REGEX.sub(number_fn, text)
-    return text
-
-@dataclass
-class ViToken:
-    text: str
-    phonemes: str = None
-    parent: str = None
-
 class VIG2P:
-    def __init__(self, 
-                 glottal = 0, pham = 0, cao = 0, palatals = 0, substr_tokenize = True, dialect = "north",
-                 tone_type = 0, num2words_use_linking_words = True,
-                 enable_en_g2p = True, en_g2p_kwargs = {}):
+    def __init__(self, dialect = "north",
+                 glottal = 0, pham = 0, cao = 0, palatals = 0, substr_tokenize = True,
+                 tone_type = 0,
+                 enable_en_g2p = True, clean_abbr = True, clean_acronym = True, en_g2p_kwargs = {}):
         self.glottal = glottal
         self.pham = pham
         self.cao = cao
         self.palatals = palatals
         self.substr_tokenize = substr_tokenize
-        self.delimit = ''
         self.tone_type = tone_type
-        self.num2words_use_linking_words = num2words_use_linking_words
         if dialect in ["north", "central", "south"]:
             self.dialect = dialect[0]
         else:
@@ -422,6 +389,7 @@ class VIG2P:
             self.cao = 1
         en_g2p_kwargs["unk"] = '❓'
         self.en_g2p = G2P(**en_g2p_kwargs) if enable_en_g2p else lambda _: ('❓', [])
+        self.cleaner = ViCleaner(clean_abbr=clean_abbr, clean_acronym=clean_acronym)
     
     def substr2ipa(self, tk, ipa):
         """
@@ -456,7 +424,7 @@ class VIG2P:
             mapping = VI if VI_ONLY.search(tk) is not None else EN
             return [
                 (tk, char, 
-                 convert(mapping.get(char, char), self.dialect, self.glottal, self.pham, self.cao, self.palatals, ''))
+                 convert(mapping.get(char, char), self.dialect, self.glottal, self.pham, self.cao, self.palatals, '/'))
                 for char in tk.lower()
             ]
         
@@ -477,7 +445,7 @@ class VIG2P:
             if len(tk) == 1:
                 char = tk
                 _ipa = convert(
-                    VI.get(char, char), self.dialect, self.glottal, self.pham, self.cao, self.palatals, ''
+                    VI.get(char, char), self.dialect, self.glottal, self.pham, self.cao, self.palatals, '/'
                 )
                 parents.appendleft(orig_tk)
                 parts.appendleft(char)
@@ -489,7 +457,7 @@ class VIG2P:
                 tkc = tk[i:]
                 sub_tk = tkc if len(tkc) > 1 else VI.get(tkc, tkc)
                 _ipa = convert(
-                    sub_tk, self.dialect, self.glottal, self.pham, self.cao, self.palatals, ''
+                    sub_tk, self.dialect, self.glottal, self.pham, self.cao, self.palatals, '/'
                 )
                 if '[' not in _ipa:
                     start = i
@@ -508,43 +476,69 @@ class VIG2P:
     def __call__(self, text):
         if self.substr_tokenize:
             text = text.replace('_', ' ').replace('-', ' ')
-        TN = TTSnorm(text, self.num2words_use_linking_words)
+
+        custom_dict = {}
+        for m in LINK_REGEX.finditer(str(text)):
+            word, custom_phoneme = m.groups()
+            custom_dict[word.lower().strip()] = custom_phoneme.replace('/', '')
+            text = text.replace(m.group(0), word)
+
+        TN = self.cleaner.clean_text(text)
         # Words in Vietnamese only have one morphological form, regardless of the compound words
         # so word segmentation is unnecessary
         # E.g. "nhà" trong "nhà xe" and "nhà lầu" are the same /ɲa2/
         TK = tokenize(TN)
         new_TK = []
         for word in TK:
-            new_TK.extend(word.split())
+            # Handle abbreviation like F.C.
+            new_TK.extend(word.replace('.', ' . ').replace(',', ' , ').split())
         TK = new_TK
-        IPA = ""
-        vitokens: list[ViToken] = []
+        IPA = []
+        mtokens: list[MToken] = []
         for tk in TK:
             if EN_VI_REGEX.match(tk) is None:
-                IPA += '['+tk+']' + " "
-                vitokens.append(ViToken(tk, '['+tk+']'))
+                IPA.append('['+tk+']')
+                mtokens.append(MToken(tk, '', ' ', '['+tk+']'))
                 continue
             if tk in ['.', ',', ';', ':', '!', '?', ')', '}', ']']:
                 if tk in [')', '}', ']']:
                     tk = ')'
-                IPA = IPA.rstrip() + tk + ' '
-                vitokens.append(ViToken(tk))
+                IPA.append(tk)
+                mtokens.append(MToken(tk, '', ' ', tk))
                 continue
             if tk in ['(', '{', '[']:
                 tk = '('
-                IPA += tk
-                vitokens.append(ViToken(tk))
+                IPA.append(tk)
+                mtokens.append(MToken(tk, '', ' ', tk))
                 continue
             if tk in ['"', "'", '–', '“', '”']:
-                IPA += tk + ' '
-                vitokens.append(ViToken(tk))
+                if tk in ['“', '”']: tk = '"'
+                IPA.append(tk)
+                mtokens.append(MToken(tk, '', ' ', tk))
                 continue
-            tk = SYMBOL_REGEX.sub(lambda match: " " + SYMBOL_MAPPING[match[0]] + " ", tk)
-            tk = TEENCODE_MAPPING.get(tk.lower(), tk)
-            parent_tk_ipas = self.substr2ipa(tk, convert(tk.lower(), self.dialect, self.glottal, self.pham, self.cao, self.palatals, self.delimit))
+            
+            custom_ipa = custom_dict.get(tk.lower().strip())
+            if custom_ipa is not None:
+                IPA.append(custom_ipa)
+                mtokens.append(MToken(tk, '', ' ', custom_ipa))
+                continue
+
+            first_try = convert(tk.lower(), self.dialect, self.glottal, self.pham, self.cao, self.palatals, '/')
+            parent_tk_ipas = self.substr2ipa(tk, first_try)
             for parent, tk, ipa in parent_tk_ipas:
-                IPA += ipa.strip() + " "
-                vitokens.append(ViToken(tk, ipa, parent))
-        return IPA.strip(), vitokens
+                if '/' in ipa:
+                    onsets, nuclei, codas, tone = ipa.split('/')
+                    ipa = ''.join([onsets, nuclei, codas, tone])
+                else:
+                    onsets, nuclei, codas, tone = [''] * 4
+                IPA.append(ipa)
+                mtokens.append(MToken(tk, '', ' ', ipa, _=MToken.Underscore(
+                    parent=parent,
+                    onsets=onsets,
+                    nuclei=nuclei,
+                    codas=codas,
+                    tone=tone
+                )))
+        return ' '.join(IPA), mtokens
 
 __all__ = [VIG2P, vi_syms]
