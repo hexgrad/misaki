@@ -1,5 +1,5 @@
 import re
-from .en import G2P
+from .en import G2P, LINK_REGEX
 from underthesea.pipeline.word_tokenize import tokenize, regex_tokenize
 import re
 from .vi_cleaner import ViCleaner
@@ -476,6 +476,13 @@ class VIG2P:
     def __call__(self, text):
         if self.substr_tokenize:
             text = text.replace('_', ' ').replace('-', ' ')
+
+        custom_dict = {}
+        for m in LINK_REGEX.finditer(str(text)):
+            word, custom_phoneme = m.groups()
+            custom_dict[word.lower().strip()] = custom_phoneme.replace('/', '')
+            text = text.replace(m.group(0), word)
+
         TN = self.cleaner.clean_text(text)
         # Words in Vietnamese only have one morphological form, regardless of the compound words
         # so word segmentation is unnecessary
@@ -510,6 +517,12 @@ class VIG2P:
                 mtokens.append(MToken(tk, '', ' ', tk))
                 continue
             
+            custom_ipa = custom_dict.get(tk.lower().strip())
+            if custom_ipa is not None:
+                IPA.append(custom_ipa)
+                mtokens.append(MToken(tk, '', ' ', custom_ipa))
+                continue
+
             first_try = convert(tk.lower(), self.dialect, self.glottal, self.pham, self.cao, self.palatals, '/')
             parent_tk_ipas = self.substr2ipa(tk, first_try)
             for parent, tk, ipa in parent_tk_ipas:
