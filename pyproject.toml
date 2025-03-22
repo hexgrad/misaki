@@ -27,6 +27,7 @@ ja = ["fugashi", "jaconv", "mojimoji", "unidic-lite", "pyopenjtalk-plus"]
 ko = ["jamo", "nltk"]
 zh = ["jieba", "ordered-set", "pypinyin", "cn2an", "pypinyin-dict"]
 vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]
+he = ["mishkal-hebrew>=0.3.2"]
 
 [build-system]
 requires = ["hatchling"]
