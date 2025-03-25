@@ -23,7 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 en = ["num2words", "spacy", "spacy-curated-transformers", "phonemizer-fork", "espeakng-loader"]
-ja = ["fugashi", "jaconv", "mojimoji", "unidic-lite", "pyopenjtalk-plus"]
+ja = ["fugashi", "jaconv", "mojimoji", "unidic", "pyopenjtalk"]
 ko = ["jamo", "nltk"]
 zh = ["jieba", "ordered-set", "pypinyin", "cn2an", "pypinyin-dict"]
 vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]

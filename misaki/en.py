@@ -385,7 +385,11 @@ class Lexicon:
                         result.append(self.lookup(w, None, -2 if w == 'point' else None, None))
                 elif w == 'and' and 'n' in num_flags and result:
                     result[-1] = (result[-1][0] + 'ən', result[-1][1])
-        if not is_head and '.' not in word:
+        if is_digit(word) and suffix in ORDINALS:
+            extend_num(num2words(int(word), to='ordinal'), escape=True)
+        elif not result and len(word) == 4 and currency not in CURRENCIES and is_digit(word):
+            extend_num(num2words(int(word), to='year'), escape=True)
+        elif not is_head and '.' not in word:
             num = word.replace(',', '')
             if num[0] == '0' or len(num) > 3:
                 [extend_num(n, first=False) for n in num]
@@ -422,7 +426,7 @@ class Lexicon:
                 result.append(self.stem_s(unit+'s', None, None, None) if abs(num) != 1 and unit != 'pence' else self.lookup(unit, None, None, None))
         else:
             if is_digit(word):
-                word = num2words(int(word), to='ordinal' if suffix in ORDINALS else ('year' if not result and len(word) == 4 else 'cardinal'))
+                word = num2words(int(word), to='cardinal')
             elif '.' not in word:
                 word = num2words(int(word.replace(',', '')), to='ordinal' if suffix in ORDINALS else 'cardinal')
             else:

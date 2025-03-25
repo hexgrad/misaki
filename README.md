@@ -45,8 +45,9 @@ print(phonemes) # nˈW Wɾɑfdˈɪkʃənˌɛɹi wˈɜɹdz ɑɹ hˈændəld bI ˈ
 - https://github.com/hexgrad/misaki/blob/main/EN_PHONES.md
 
 ### Japanese
-The second gen Japanese tokenizer now uses pyopenjtalk-plus and features pitch accent marks and improved phrase merging. Deep gratitude to [@sophiefy](https://github.com/sophiefy) for invaluable recommendations and nuanced help with pitch accent.
-- https://github.com/tsukumijima/pyopenjtalk-plus
+The second gen Japanese tokenizer now uses pyopenjtalk with full unidic, enabling pitch accent marks and improved phrase merging. Deep gratitude to [@sophiefy](https://github.com/sophiefy) for invaluable recommendations and nuanced help with pitch accent.
+- https://github.com/r9y9/pyopenjtalk
+- https://github.com/polm/unidic-py
 
 The first gen Japanese tokenizer mainly relies on cutlet => fugashi => mecab => unidic-lite, with each being a wrapper around the next. Deep gratitute to [@Respaired](https://github.com/Respaired) for helping me learn the ropes of Japanese tokenization before any Kokoro model had started training.
 - https://github.com/polm/cutlet
@@ -55,7 +56,7 @@ The first gen Japanese tokenizer mainly relies on cutlet => fugashi => mecab => 
 - https://github.com/studio-ousia/mojimoji
 
 ### Korean
-The Korean tokenizer is copied from 5Hyeons's g2pkc fork of Kyubyong's widely used g2pK library. Deep gratitute to [@5Hyeons](https://github.com/5Hyeons) for kindly helping with Korean and permissively extending the code by [@Kyubyong](https://github.com/Kyubyong).
+The Korean tokenizer is copied from 5Hyeons's g2pkc fork of Kyubyong's widely used g2pK library. Deep gratitute to [@5Hyeons](https://github.com/5Hyeons) for kindly helping with Korean and extending the original code by [@Kyubyong](https://github.com/Kyubyong).
 - https://github.com/5Hyeons/StyleTTS2/tree/vocos/g2pK/g2pkc
 - https://github.com/Kyubyong/g2pK
 
