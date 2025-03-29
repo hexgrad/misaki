@@ -234,7 +234,7 @@ assert len(M2P) == 192, len(M2P)
 TAILS = frozenset([*[v[-1] for v in M2P.values()], '↓'])
 assert len(TAILS) == 8, len(TAILS)
 
-PUNCT_MAP = {'«':'“','»':'”','、':',','。':'.','《':'“','》':'”','「':'“','」':'”','【':'“','】':'”','！':'!','（':'(','）':')','：':':','；':';','？':'?'}
+PUNCT_MAP = {'«':'“','»':'”','、':',','。':'.','〈':'“','〉':'”','《':'“','》':'”','「':'“','」':'”','『':'“','』':'”','【':'“','】':'”','！':'!','（':'(','）':')','：':':','；':';','？':'?'}
 assert all(len(k) == len(v) == 1 for k, v in PUNCT_MAP.items())
 
 PUNCT_VALUES = frozenset('!"(),.:;?—“”…')
@@ -312,7 +312,11 @@ class JAG2P:
                             phonemes += '↑' + ps
                         else:
                             assert a == 3, a
-                            phonemes += ('↑' if i > 0 and accents[i-1] == 0 else '') + ps + '↓'
+                            if i > 0 and accents[i-1] == 0:
+                                phonemes += '↑'
+                            elif i == 0 and chain_flag and tokens[-1]._.accents[-1] == 0:
+                                phonemes += '↑'
+                            phonemes += ps + '↓'
                         last_p = ps[-1:]
                 elif surface and all(s in PUNCT_VALUES for s in surface):
                     phonemes = surface
