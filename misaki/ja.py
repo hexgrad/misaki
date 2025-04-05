@@ -228,10 +228,11 @@ for k, v in M2P.items():
 # TODO
 M2P['ッ'] = 'ʔ'
 M2P['ン'] = 'ɴ'
-# M2P['ー'] = 'ː'
-assert len(M2P) == 192, len(M2P)
+M2P['ー'] = 'ː'
+assert len(M2P) == 193, len(M2P)
 
-TAILS = frozenset([*[v[-1] for v in M2P.values()], '↓'])
+# TAILS = frozenset([*[v[-1] for v in M2P.values()], '↓'])
+TAILS = frozenset([v[-1] for v in M2P.values()])
 assert len(TAILS) == 8, len(TAILS)
 
 PUNCT_MAP = {'«':'“','»':'”','、':',','。':'.','〈':'“','〉':'”','《':'“','》':'”','「':'“','」':'”','『':'“','』':'”','【':'“','】':'”','！':'!','（':'(','）':')','：':':','；':';','？':'?'}
@@ -260,7 +261,7 @@ class JAG2P:
     def pron2moras(pron: str) -> List[str]:
         moras = []
         for k in pron:
-            if k != 'ー' and k not in M2P:
+            if k not in M2P: #and k != 'ー':
                 continue
             if moras and moras[-1] + k in M2P:
                 moras[-1] += k
@@ -271,80 +272,85 @@ class JAG2P:
     def __call__(self, text) -> Tuple[str, Optional[List[MToken]]]:
         if self.cutlet:
             return self.cutlet(text)
-        else:
-            tokens = []
-            last_a, last_p = 0, ''
-            acc, mcount = None, 0
-            for word in pyopenjtalk.run_frontend(text):
-                pron, mora_size = word['pron'], word['mora_size']
-                moras = []
-                if mora_size > 0:
-                    moras = JAG2P.pron2moras(pron)
-                    assert len(moras) == mora_size or len(moras) + (1 if moras[0] == 'ー' else 0) == mora_size, (moras, mora_size)
-                chain_flag = mora_size > 0 and tokens and tokens[-1]._.mora_size > 0 and (word['chain_flag'] == 1 or moras[0] == 'ー')
-                if not chain_flag:
-                    acc, mcount = None, 0
-                acc = word['acc'] if acc is None else acc
-                accents = []
-                for _ in moras:
-                    mcount += 1
-                    if acc == 0:
-                        accents.append(0 if mcount == 1 else (1 if last_a == 0 else 2))
-                    elif acc == mcount:
-                        accents.append(3)
-                    elif 1 < mcount < acc:
-                        accents.append(1 if last_a == 0 else 2)
-                    else:
-                        accents.append(0)
-                    last_a = accents[-1]
-                assert len(moras) == len(accents)
-                surface = word['string']
-                if surface in PUNCT_MAP:
-                    surface = PUNCT_MAP[surface]
-                whitespace, phonemes = '', None
-                if moras:
-                    phonemes = ''
-                    for i, (m, a) in enumerate(zip(moras, accents)):
-                        ps = last_p if m == 'ー' else M2P[m]
-                        if a in (0, 2):# or all(v not in ps for v in VOWELS):
-                            phonemes += ps
-                        elif a == 1:
-                            phonemes += '↑' + ps
-                        else:
-                            assert a == 3, a
-                            if i > 0 and accents[i-1] == 0:
-                                phonemes += '↑'
-                            elif i == 0 and chain_flag and tokens[-1]._.accents[-1] == 0:
-                                phonemes += '↑'
-                            phonemes += ps + '↓'
-                        last_p = ps[-1:]
-                elif surface and all(s in PUNCT_VALUES for s in surface):
-                    phonemes = surface
-                    if surface[-1] in PUNCT_STOPS:
-                        whitespace = ' '
-                        if tokens:
-                            tokens[-1].whitespace = ''
-                    elif surface[-1] in PUNCT_STARTS and tokens and not tokens[-1].whitespace:
-                        tokens[-1].whitespace = ' '
-                if tokens and phonemes is None and surface == '・' or surface and not surface.strip():
+        tokens = []
+        last_a, last_p = 0, ''
+        acc, mcount = None, 0
+        for word in pyopenjtalk.run_frontend(text):
+            pron, mora_size = word['pron'], word['mora_size']
+            moras = []
+            if mora_size > 0:
+                moras = JAG2P.pron2moras(pron)
+                assert len(moras) == mora_size or len(moras) + (1 if moras[0] == 'ー' else 0) == mora_size, (moras, mora_size)
+            chain_flag = mora_size > 0 and tokens and tokens[-1]._.mora_size > 0 and (word['chain_flag'] == 1 or moras[0] == 'ー')
+            if not chain_flag:
+                acc, mcount = None, 0
+            acc = word['acc'] if acc is None else acc
+            accents = []
+            for _ in moras:
+                mcount += 1
+                if acc == 0:
+                    accents.append(0 if mcount == 1 else (1 if last_a == 0 else 2))
+                elif acc == mcount:
+                    accents.append(3)
+                elif 1 < mcount < acc:
+                    accents.append(1 if last_a == 0 else 2)
+                else:
+                    accents.append(0)
+                last_a = accents[-1]
+            assert len(moras) == len(accents)
+            surface = word['string']
+            if surface in PUNCT_MAP:
+                surface = PUNCT_MAP[surface]
+            whitespace, phonemes, pitch = '', None, None
+            if moras:
+                phonemes, pitch = '', ''
+                for i, (m, a) in enumerate(zip(moras, accents)):
+                    ps = M2P[m] #last_p if m == 'ー' else M2P[m]
+                    phonemes += ps
+                    pitch += ('_' if a == 0 else ('^' if a == 3 else '-')) * len(ps)
+                    # if a in (0, 2):# or all(v not in ps for v in VOWELS):
+                    #     phonemes += ps
+                    # elif a == 1:
+                    #     phonemes += '↑' + ps
+                    # else:
+                    #     assert a == 3, a
+                    #     if i > 0 and accents[i-1] == 0:
+                    #         phonemes += '↑'
+                    #     elif i == 0 and chain_flag and tokens[-1]._.accents[-1] == 0:
+                    #         phonemes += '↑'
+                    #     phonemes += ps + '↓'
+                    # last_p = ps[-1:]
+            elif surface and all(s in PUNCT_VALUES for s in surface):
+                phonemes = surface
+                if surface[-1] in PUNCT_STOPS:
+                    whitespace = ' '
+                    if tokens:
+                        tokens[-1].whitespace = ''
+                elif surface[-1] in PUNCT_STARTS and tokens and not tokens[-1].whitespace:
                     tokens[-1].whitespace = ' '
-                    continue
-                tokens.append(MToken(
-                    text=surface, tag=word['pos'],
-                    whitespace=whitespace, phonemes=phonemes,
-                    _=MToken.Underscore(
-                        pron=pron, acc=word['acc'], mora_size=mora_size,
-                        chain_flag=chain_flag, moras=moras, accents=accents
-                    )
-                ))
-        result = ''
+            if tokens and phonemes is None and surface == '・' or surface and not surface.strip():
+                tokens[-1].whitespace = ' '
+                continue
+            tokens.append(MToken(
+                text=surface, tag=word['pos'],
+                whitespace=whitespace, phonemes=phonemes,
+                _=MToken.Underscore(
+                    pron=pron, acc=word['acc'], mora_size=mora_size,
+                    chain_flag=chain_flag, moras=moras, accents=accents, pitch=pitch
+                )
+            ))
+        result, pitch = '', ''
         for tk in tokens:
             if tk.phonemes is None:
                 result += self.unk + tk.whitespace
+                pitch += 'j' * len(self.unk + tk.whitespace)
                 continue
             if tk._.mora_size and not tk._.chain_flag and result and result[-1] in TAILS and not tk._.moras[0] == 'ン':
                 result += ' '
+                pitch += 'j'
             result += tk.phonemes + tk.whitespace
+            pitch += (('j' * len(tk.phonemes)) if tk._.pitch is None else tk._.pitch) + 'j' * len(tk.whitespace)
         if tokens and tokens[-1].whitespace and result.endswith(tokens[-1].whitespace):
             result = result[:-len(tokens[-1].whitespace)]
-        return result, tokens
+            pitch = pitch[:len(result)]
+        return result + pitch, tokens
