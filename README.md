@@ -72,6 +72,9 @@ The first gen Chinese tokenizer uses jieba to cut, pypinyin, and pinyin-to-ipa.
 ### Vietnamese
 - https://github.com/v-nhandt21/Viphoneme
 
+### Hebrew
+- https://github.com/thewh1teagle/mishkal
+
 ### TODO
 - [ ] Data: Compress [data](https://github.com/hexgrad/misaki/tree/main/misaki/data) (no need for indented json) and eliminate redundancy between gold and silver dictionaries.
 - [ ] Fallbacks: Train seq2seq fallback models on dictionaries using [this notebook](https://github.com/Kyubyong/nlp_made_easy/blob/master/PyTorch%20seq2seq%20template%20based%20on%20the%20g2p%20task.ipynb).
