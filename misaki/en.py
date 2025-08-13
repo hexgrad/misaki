@@ -25,7 +25,7 @@ def merge_tokens(tokens: List[MToken], unk: Optional[str] = None) -> MToken:
                 phonemes += ' '
             phonemes += unk if tk.phonemes is None else tk.phonemes
     return MToken(
-        text=''.join(tk.text + tk.whitespace for tk in tokens[:-1]) + tokens[-1].text,
+        text=(''.join(tk.text + tk.whitespace for tk in tokens[:-1]) + tokens[-1].text).strip(),
         tag=max(tokens, key=lambda tk: sum(1 if c == c.lower() else 2 for c in tk.text)).tag,
         whitespace=tokens[-1].whitespace,
         phonemes=phonemes,
