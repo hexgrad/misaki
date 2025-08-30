@@ -9,7 +9,7 @@ class HEG2P:
         """
         Convert Hebrew text to IPA
         Text is expected to be with diacritics (niqqud)
-        Enable debug to return Word objects that contais detailed conversion information
+        Enable debug to return Word objects that contains detailed conversion information
         """
 
         return mishkal.phonemize(text, preserve_punctuation=preserve_punctuation, preserve_stress=preserve_stress)

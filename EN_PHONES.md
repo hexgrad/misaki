@@ -37,7 +37,7 @@ Disclaimer: Author is an ML researcher, not a linguist, and may have butchered o
 - `ʊ`: As in `wood => wˈʊd`.
 - `ʌ`: As in `sun => sˈʌn`.
 
-**Dipthong Vowels (4)**
+**Diphthong Vowels (4)**
 - `A`: The "eh" vowel sound, like `hey => hˈA`. Expands to `eɪ` in IPA.
 - `I`: The "eye" vowel sound, like `high => hˈI`. Expands to `aɪ` in IPA.
 - `W`: The "ow" vowel sound, like `how => hˌW`. Expands to `aʊ` in IPA.

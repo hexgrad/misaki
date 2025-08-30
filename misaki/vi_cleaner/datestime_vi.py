@@ -71,7 +71,7 @@ def _expand_full_date(match):
 
 
 def _expand_range_full_date(match):
-    prefix, space, day_start, hypen, day_end, seporator1, month, seporator2, year, suffix = match.groups(
+    prefix, space, day_start, hyphen, day_end, seporator1, month, seporator2, year, suffix = match.groups(
         0)
     space = "" if space == 0 else space
     day_start = _remove_prefix_zero(day_start)
@@ -96,7 +96,7 @@ def _expand_day_month(match):
 
 
 def _expand_range_day_month(match):
-    prefix, space, day_start, hypen, day_end, seporator1, month, suffix = match.groups(
+    prefix, space, day_start, hyphen, day_end, seporator1, month, suffix = match.groups(
         0)
     space = "" if space == 0 else space
     day_start = _remove_prefix_zero(day_start)
@@ -133,13 +133,13 @@ def _expand_quarter_month_year(match):
 
 
 def _expand_range_month_year(match):
-    prefix, space, month_start, hypen, month_end, seporator, year, suffix = match.groups(
+    prefix, space, month_start, hyphen, month_end, seporator, year, suffix = match.groups(
         0)
     space = "" if space == 0 else space
     month_start = _remove_prefix_zero(month_start)
     month_end = _remove_prefix_zero(month_end)
     year = _remove_prefix_zero(year)
-    if not _is_valid_date(1, int(month_start)) or not _is_valid_date(1, int(month_end)) or hypen == seporator:
+    if not _is_valid_date(1, int(month_start)) or not _is_valid_date(1, int(month_end)) or hyphen == seporator:
         return match.group(0)
     return space + " tháng " + n2w(month_start) + " đến tháng " + n2w(month_end) + " năm " + n2w(year) + suffix + " "
 

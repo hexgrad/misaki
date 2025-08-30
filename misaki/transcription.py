@@ -68,7 +68,7 @@ INTERJECTIONS = INTERJECTION_MAPPINGS.keys()
 
 
 # Duanmu (2000, p. 37) and Lin (2007, p. 68f)
-# Diphtongs from Duanmu (2007, p. 40): au, əu, əi, ai
+# Diphthongs from Duanmu (2007, p. 40): au, əu, əi, ai
 # Diphthongs from Lin (2007, p. 68f): au̯, ou̯, ei̯, ai̯
 FINAL_MAPPING: Dict[str, List[Tuple[str, ...]]] = {
   "a": [("a0",)],  # /
