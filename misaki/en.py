@@ -1,4 +1,5 @@
 from . import data
+import os
 from .token import MToken
 from dataclasses import dataclass, replace
 from num2words import num2words
@@ -25,7 +26,7 @@ def merge_tokens(tokens: List[MToken], unk: Optional[str] = None) -> MToken:
                 phonemes += ' '
             phonemes += unk if tk.phonemes is None else tk.phonemes
     return MToken(
-        text=''.join(tk.text + tk.whitespace for tk in tokens[:-1]) + tokens[-1].text,
+        text=(''.join(tk.text + tk.whitespace for tk in tokens[:-1]) + tokens[-1].text).strip(),
         tag=max(tokens, key=lambda tk: sum(1 if c == c.lower() else 2 for c in tk.text)).tag,
         whitespace=tokens[-1].whitespace,
         phonemes=phonemes,
@@ -495,10 +496,19 @@ class Lexicon:
         return None, None
 
 class FallbackNetwork:
-    def __init__(self, british):
+    def __init__(self, british, local_files_only=None):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Respect offline env vars if not explicitly set
+        if local_files_only is None:
+            local_files_only = (
+                os.environ.get("TRANSFORMERS_OFFLINE", "0") == "1" or
+                os.environ.get("HF_HUB_OFFLINE", "0") == "1"
+            )
+
         self.model = BartForConditionalGeneration.from_pretrained(
-            "PeterReid/graphemes_to_phonemes_en_" + ("gb" if british else "us"))
+            "PeterReid/graphemes_to_phonemes_en_" + ("gb" if british else "us"),
+            local_files_only=local_files_only)
         self.model.to(self.device)
         self.model.eval()
         self.grapheme_to_token = {g: i for i, g in enumerate(self.model.config.grapheme_chars)}
@@ -519,7 +529,7 @@ class FallbackNetwork:
         return (output_text, 1)
 
 class G2P:
-    def __init__(self, version=None, trf=False, british=False, fallback=None, unk='❓'):
+    def __init__(self, version=None, trf=False, british=False, fallback=None, unk='❓', local_files_only=None):
         self.version = version
         self.british = british
         name = f"en_core_web_{'trf' if trf else 'sm'}"
@@ -528,7 +538,7 @@ class G2P:
         components = ['transformer' if trf else 'tok2vec', 'tagger']
         self.nlp = spacy.load(name, enable=components)
         self.lexicon = Lexicon(british)
-        self.fallback = fallback if fallback else FallbackNetwork(british)
+        self.fallback = fallback if fallback else FallbackNetwork(british, local_files_only=local_files_only)
         self.unk = unk
 
     @staticmethod
