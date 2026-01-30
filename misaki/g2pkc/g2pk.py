@@ -36,8 +36,10 @@ class G2p(object):
             import MeCab
             return MeCab.Tagger()
         elif os.name == 'posix':
-            import mecab
-            return mecab.MeCab()
+            import MeCab
+            import unidic_lite
+            dicdir = unidic_lite.DICDIR
+            return MeCab.Tagger(f"-r {dicdir}/mecabrc -d {dicdir}")
 
     def idioms(self, string, descriptive=False, verbose=False):
         '''Process each line in `idioms.txt`
