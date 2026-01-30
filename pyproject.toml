@@ -17,19 +17,49 @@ classifiers = [
 ]
 requires-python = ">=3.8, <3.14"
 dependencies = [
-    "addict",
-    "pip>=25.0.1", 
+    "addict>=2.4.0",
+    "pip>=25.0.1",
     # ^ Spacy needs pip within Python, uv lacks pip by default
-    "regex",
+    "regex>=2024.11.6",
 ]
 
 [project.optional-dependencies]
-en = ["num2words", "spacy", "spacy-curated-transformers", "phonemizer-fork", "espeakng-loader", "torch", "transformers"]
-ja = ["fugashi", "jaconv", "mojimoji", "unidic", "pyopenjtalk"]
-ko = ["jamo", "nltk"]
-zh = ["jieba", "ordered-set", "pypinyin", "cn2an", "pypinyin-dict"]
-vi = ["num2words", "spacy", "spacy-curated-transformers", "underthesea"]
-he = ["mishkal-hebrew>=0.3.2"]
+en = [
+    "espeakng-loader>=0.2.4",
+    "num2words>=0.5.14",
+    "phonemizer-fork>=3.3.2",
+    "spacy>=3.7.5",
+    "spacy-curated-transformers>=0.2.2",
+    "torch>=2.5.1",
+    "transformers>=4.46.3",
+]
+ja = [
+    "fugashi>=1.4.0",
+    "jaconv>=0.4.0",
+    "mojimoji>=0.0.13",
+    "pyopenjtalk>=0.4.1",
+    "unidic>=1.1.0",
+]
+ko = [
+    "jamo>=0.4.1",
+    "mecab-python3>=1.0.12",
+    "nltk>=3.9.1",
+    "unidic-lite>=1.0.8",
+]
+zh = [
+    "cn2an>=0.5.23",
+    "jieba>=0.42.1",
+    "ordered-set>=4.1.0",
+    "pypinyin>=0.55.0",
+    "pypinyin-dict>=0.9.0",
+]
+vi = [
+    "num2words>=0.5.14",
+    "spacy>=3.7.5",
+    "spacy-curated-transformers>=0.2.2",
+    "underthesea>=6.8.4",
+    "vietnam-number>=1.0.3",
+]
 
 [build-system]
 requires = ["hatchling"]

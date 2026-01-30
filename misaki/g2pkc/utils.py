@@ -160,19 +160,28 @@ def parse_table():
 
 
 ############## Preprocessing ##############
+def _mecab_tokens(mecab, string):
+    if hasattr(mecab, "pos"):
+        return mecab.pos(string)
+
+    parse = mecab.parse(string).split('\n')
+    tokens = []
+    for p in parse:
+        if not p or p == "EOS":
+            continue
+        if '\t' not in p:
+            continue
+        p1, p2 = p.split('\t', 1)
+        p2 = p2.split(',')[0]
+        tokens.append((p1, p2))
+    return tokens
+
+
 def annotate(string, mecab):
     '''attach pos tags to the given string using Mecab
     mecab: mecab object
     '''
-    if os.name == 'nt':
-        parse = mecab.parse(string).split('\n')
-        tokens = []
-        for p in parse[:-2]:
-            p1, p2 = p.split('\t')
-            p2 = p2.split(',')[0]
-            tokens.append((p1, p2))
-    elif os.name == 'posix':
-        tokens = mecab.pos(string)
+    tokens = _mecab_tokens(mecab, string)
     
     if re.sub(r'[ \n]', '', string) != "".join(token for token, _ in tokens):
         return string
@@ -270,7 +279,5 @@ def gloss(verbose, out, inp, rule):
     if verbose and out != inp and out != re.sub("/[EJPB]", "", inp):
         print(compose(inp), "->", compose(out))
         print("\033[1;31m", rule, "\033[0m")
-
-
 
 
