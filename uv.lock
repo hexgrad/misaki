@@ -835,7 +835,7 @@ requires-dist = [
     { name = "pypinyin", marker = "extra == 'zh'" },
     { name = "pypinyin-dict", marker = "extra == 'zh'" },
     { name = "regex" },
-    { name = "spacy", marker = "extra == 'en'", specifier = ">=3.8" },
+    { name = "spacy", marker = "extra == 'en'" },
     { name = "spacy", marker = "extra == 'vi'" },
     { name = "spacy-curated-transformers", marker = "extra == 'en'" },
     { name = "spacy-curated-transformers", marker = "extra == 'vi'" },
