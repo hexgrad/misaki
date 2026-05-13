@@ -3,7 +3,10 @@ from .token import MToken
 from dataclasses import dataclass, replace
 from num2words import num2words
 from typing import List, Optional, Tuple, Union
-import importlib.resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 import json
 import numpy as np
 import re
@@ -142,10 +145,8 @@ class Lexicon:
         self.cap_stresses = (0.5, 2)
         self.golds = {}
         self.silvers = {}
-        with importlib.resources.open_text(data, f"{'gb' if british else 'us'}_gold.json") as r:
-            self.golds = Lexicon.grow_dictionary(json.load(r))
-        with importlib.resources.open_text(data, f"{'gb' if british else 'us'}_silver.json") as r:
-            self.silvers = Lexicon.grow_dictionary(json.load(r))
+        self.golds = Lexicon.grow_dictionary(json.loads(files(data).joinpath(f"{'gb' if british else 'us'}_gold.json").read_text(encoding='utf-8')))
+        self.silvers = Lexicon.grow_dictionary(json.loads(files(data).joinpath(f"{'gb' if british else 'us'}_silver.json").read_text(encoding='utf-8')))
         assert all(isinstance(v, str) or isinstance(v, dict) for v in self.golds.values())
         vocab = GB_VOCAB if british else US_VOCAB
         for vs in self.golds.values():

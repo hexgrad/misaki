@@ -18,6 +18,7 @@ classifiers = [
 requires-python = ">=3.8, <3.14"
 dependencies = [
     "addict",
+    "importlib-resources; python_version < '3.9'",
     "pip>=25.0.1", 
     # ^ Spacy needs pip within Python, uv lacks pip by default
     "regex",

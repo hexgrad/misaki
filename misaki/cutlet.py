@@ -5,7 +5,10 @@ from .num2kana import Convert
 from dataclasses import dataclass
 from fugashi import Tagger
 from typing import Tuple
-import importlib.resources
+try:
+    from importlib.resources import files
+except ImportError:
+    from importlib_resources import files
 import jaconv
 import mojimoji
 import re
@@ -230,8 +233,7 @@ Katakana_Phonetic_Extensions = ['ㇰク','ㇱシ','ㇲス','ㇳト','ㇴヌ','�
 assert all(chr(i) == kk[0] for i, kk in zip(range(12784, 12800), Katakana_Phonetic_Extensions))
 Katakana_Phonetic_Extensions = {kk[0]: kk[1] for kk in Katakana_Phonetic_Extensions}
 
-with importlib.resources.open_text(data, 'ja_words.txt') as r:
-    JA_WORDS = frozenset({line.strip() for line in r})
+JA_WORDS = frozenset({line.strip() for line in files(data).joinpath('ja_words.txt').read_text(encoding='utf-8').splitlines()})
 
 def add_dakuten(kk):
     """Given a kana (single-character string), add a dakuten."""
