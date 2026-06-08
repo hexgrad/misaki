@@ -538,6 +538,9 @@ class G2P:
         features = {}
         last_end = 0
         text = text.lstrip()
+        # spaCy mis-tags a curly-apostrophe "n't" and the negation is lost, so
+        # normalize to a straight apostrophe before the text is tagged.
+        text = text.replace(chr(8216), "'").replace(chr(8217), "'")
         for m in LINK_REGEX.finditer(text):
             result += text[last_end:m.start()]
             tokens.extend(text[last_end:m.start()].split())
