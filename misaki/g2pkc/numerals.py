@@ -109,7 +109,8 @@ def convert_num(string):
 
     # Bound Nouns
     tokens = set(re.findall("([\d][\d,]*)( ?[ㄱ-힣]+)?(?:/B)?", string))
-    for token in tokens:
+    # A shorter number is a suffix of a longer one, so replace the longer number first.
+    for token in sorted(tokens, key=lambda token: len(token[0]), reverse=True):
         num, bn = token
         bn_s = bn.lstrip()
         if bn_s in BOUND_NOUNS.split():
